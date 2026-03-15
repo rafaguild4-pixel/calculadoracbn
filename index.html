@@ -62,7 +62,7 @@
         .user-info { display: flex; align-items: center; gap: 10px; }
         .user-avatar { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--discord-color); }
 
-        /* SEU CONTAINER ORIGINAL */
+        /* CONTAINER PRINCIPAL */
         .main-container { display: none; width: 1000px; background-color: var(--bg-blue); border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
         .ficha-branca { background-color: white; color: black; width: 60%; padding: 30px; min-height: 850px; overflow-y: auto; }
@@ -274,8 +274,8 @@
             </div>
             
             <div class="container-botoes-acao">
-                <button class="btn-acao btn-discord" onclick="copiar()">Copiar Para Discord</button>
-                <button class="btn-acao btn-enviar" onclick="enviarWebhook()">Enviar Agora</button>
+                <button class="btn-acao btn-discord" onclick="processarRelatorio('copiar')">Copiar Para Discord</button>
+                <button class="btn-acao btn-enviar" onclick="processarRelatorio('enviar')">Enviar Agora</button>
             </div>
 
             <button class="btn-acao" style="background: #ff4757; color: white; height: 40px; font-size: 12px; flex: none;" onclick="location.reload()">Limpar Tudo</button>
@@ -291,7 +291,7 @@
     // --- CONFIGURAÇÃO ---
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1482766792169361661/4QYEpcaqFEinXdwehIgmy0A9vqGSrg0-mTo6IuK8_SUNNhR3aTMz--YoUDaMU20bgx-a"; 
 
-    // 1. LÓGICA DE AUTENTICAÇÃO DISCORD (SEM TRAVA)
+    // 1. LÓGICA DE AUTENTICAÇÃO DISCORD
     function checkLogin() {
         const fragment = new URLSearchParams(window.location.hash.slice(1));
         const token = fragment.get('access_token');
@@ -307,8 +307,16 @@
                 document.getElementById('user-bar').style.display = 'flex';
                 document.getElementById('user-name').innerText = user.username;
                 document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
-                window.discordUser = user; // Armazena o usuário globalmente
+                window.discordUser = user; 
                 atualizarDataHora();
+                // Adiciona ouvintes para atualizar cálculos em tempo real
+                document.querySelectorAll('input, textarea, select').forEach(el => {
+                    el.addEventListener('change', calcular);
+                    el.addEventListener('keyup', calcular);
+                });
+                document.querySelectorAll('.crime-check, .atenuante-check').forEach(el => {
+                    el.addEventListener('change', calcular);
+                });
             })
             .catch(() => logout());
         }
@@ -375,7 +383,7 @@
         let totalDesconto = 0;
         document.querySelectorAll('.atenuante-check:checked').forEach(a => {
             totalDesconto += parseInt(a.dataset.descVal);
-            atenuantesSelecionadas.push(a.value + " (" + a.dataset.descVal + "%)");
+            atenuantesSelecionadas.push(a.value);
         });
 
         if (totalDesconto > 90) totalDesconto = 90; 
@@ -400,55 +408,63 @@
 
         document.getElementById('listaCrimes').innerHTML = crimesSelecionados.length > 0 ? crimesSelecionados.map(crime => `<span class="tag">${crime}</span>`).join('') : "Nenhum crime selecionado.";
         document.getElementById('listaAtenuantes').innerHTML = atenuantesSelecionadas.length > 0 ? atenuantesSelecionadas.map(at => `<span class="tag tag-atenuante">${at}</span>`).join('') : "Nenhuma atenuante.";
+        
+        return { penaBase, multa, fianca, penaFinal, crimesSelecionados, atenuantesSelecionadas, inafiancavel };
     }
 
-    // 2. FUNÇÃO DE ENVIO AUTOMÁTICO (WEBHOOK)
-    function enviarWebhook() {
-        if (!window.discordUser) return alert("Faça login para enviar!");
+    // --- FUNÇÃO DE ENVIO E CÓPIA UNIFICADA (A QUE VOCÊ PEDIU) ---
+    function processarRelatorio(tipo) {
+        const dados = calcular();
+        const data = document.getElementById('inData').value;
+        const hora = document.getElementById('inHora').value;
+        const policialNome = document.getElementById('inPrisaoPor').value;
+        const policialID = document.getElementById('idPolicial').value;
+        const acusadoNome = document.getElementById('inNome').value;
+        const acusadoID = document.getElementById('inPass').value;
+        const advogado = document.getElementById('inAdvogado').value || "Nenhum";
+        const advogadoID = document.getElementById('idAdvogado').value || "N/A";
+        const relatorio = document.getElementById('inRelatorio').value;
+        const fiancaPaga = document.getElementById('fiancaSim').checked ? "SIM ✅" : "NÃO ❌";
+        
+        // MARCAÇÃO DO USUÁRIO LOGADO
+        const mencaoPolicial = window.discordUser ? `<@${window.discordUser.id}>` : policialNome;
 
-        const user = window.discordUser;
-        const fiancaPaga = document.getElementById('fiancaSim').checked ? "SIM" : "NÃO";
+        const layoutTexto = 
+`**⚖️ NOVA FICHA CRIMINAL - CAPITAL BRASIL NORTE**
 
-        const payload = {
-            username: user.username,
-            avatar_url: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`,
-            embeds: [{
-                title: "📑 FICHA CRIMINAL - CAPITAL BRASIL NORTE",
-                color: 1052672,
-                fields: [
-                    { name: "👤 Acusado", value: `${document.getElementById('inNome').value} (ID: ${document.getElementById('inPass').value})`, inline: true },
-                    { name: "👮 Oficial", value: `<@${user.id}> (ID: ${document.getElementById('idPolicial').value})`, inline: true },
-                    { name: "⚖️ Advogado", value: `${document.getElementById('inAdvogado').value} (ID: ${document.getElementById('idAdvogado').value})`, inline: true },
-                    { name: "⏱️ Pena Final", value: `${document.getElementById('resPenaFinal').innerText}`, inline: true },
-                    { name: "💰 Multa", value: `${document.getElementById('resMulta').innerText}`, inline: true },
-                    { name: "🔓 Fiança Paga?", value: fiancaPaga, inline: true },
-                    { name: "📂 Crimes", value: document.getElementById('listaCrimes').innerText },
-                    { name: "📝 Relatório", value: document.getElementById('inRelatorio').value || "Nenhuma descrição informada." }
-                ],
-                footer: { text: `Enviado em: ${document.getElementById('inData').value} às ${document.getElementById('inHora').value}` }
-            }]
-        };
+**👤 Acusado:** ${acusadoNome} (ID: ${acusadoID})
+**👮 Policial:** ${mencaoPolicial} | (ID: ${policialID})
+**⚖️ Advogado:** ${advogado} (ID: ${advogadoID})
 
-        fetch(WEBHOOK_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        })
-        .then(() => alert("✅ Relatório enviado com sucesso!"))
-        .catch(() => alert("❌ Erro ao enviar para o Discord."));
+**📅 Data e Hora:** ${data} às ${hora}
+**📁 Artigos:** ${dados.crimesSelecionados.join(', ')}
+**⚖️ Atenuantes:** ${dados.atenuantesSelecionadas.join(', ') || "Nenhuma"}
+
+**⏱️ Pena Base:** ${dados.penaBase} meses
+**📉 PENA FINAL:** **${dados.penaFinal} meses**
+**💰 Multa:** R$ ${dados.multa.toLocaleString('pt-BR')}
+**🔓 Fiança:** ${dados.inafiancavel ? "INAFIANÇÁVEL" : "R$ " + dados.fianca.toLocaleString('pt-BR')} | **Paga:** ${fiancaPaga}
+
+**📝 Relatório:** ${relatorio || "Sem descrição detalhada."}
+
+*Relatório enviado por: ${mencaoPolicial}*`;
+
+        if (tipo === 'copiar') {
+            navigator.clipboard.writeText(layoutTexto);
+            alert("Copiado com sucesso para o Discord!");
+        }
+
+        if (tipo === 'enviar') {
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    content: layoutTexto // Envia o texto formatado exatamente igual ao copiar
+                })
+            }).then(() => alert("Enviado para os logs com sucesso!"));
+        }
     }
-
-    function copiar() {
-        const texto = `**RELATÓRIO POLICIAL - CBN**\nOficial: ${document.getElementById('user-name').innerText}\nAcusado: ${document.getElementById('inNome').value}\nPena: ${document.getElementById('resPenaFinal').innerText}\nMulta: ${document.getElementById('resMulta').innerText}`;
-        navigator.clipboard.writeText(texto);
-        alert("Copiado!");
-    }
-
-    // Inicializa os listeners para cálculo automático
-    document.querySelectorAll('input, textarea, .crime-check, .atenuante-check').forEach(el => {
-        el.addEventListener('change', calcular);
-        el.addEventListener('input', calcular);
-    });
 </script>
+
 </body>
 </html>
