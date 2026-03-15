@@ -288,7 +288,10 @@
 </div>
 
 <script>
-    // LÓGICA DE AUTENTICAÇÃO DISCORD
+    // --- CONFIGURAÇÃO ---
+    const WEBHOOK_URL = "https://discord.com/api/webhooks/1482766792169361661/4QYEpcaqFEinXdwehIgmy0A9vqGSrg0-mTo6IuK8_SUNNhR3aTMz--YoUDaMU20bgx-a"; 
+
+    // 1. LÓGICA DE AUTENTICAÇÃO DISCORD (SEM TRAVA)
     function checkLogin() {
         const fragment = new URLSearchParams(window.location.hash.slice(1));
         const token = fragment.get('access_token');
@@ -304,7 +307,7 @@
                 document.getElementById('user-bar').style.display = 'flex';
                 document.getElementById('user-name').innerText = user.username;
                 document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
-                window.discordUser = user;
+                window.discordUser = user; // Armazena o usuário globalmente
                 atualizarDataHora();
             })
             .catch(() => logout());
@@ -327,6 +330,7 @@
         const nao = document.getElementById('fiancaNao');
         if (opcao === 'sim' && sim.checked) nao.checked = false;
         if (opcao === 'nao' && nao.checked) sim.checked = false;
+        calcular();
     }
 
     function filtrarCrimes() {
@@ -398,124 +402,53 @@
         document.getElementById('listaAtenuantes').innerHTML = atenuantesSelecionadas.length > 0 ? atenuantesSelecionadas.map(at => `<span class="tag tag-atenuante">${at}</span>`).join('') : "Nenhuma atenuante.";
     }
 
-    document.querySelectorAll('input, textarea').forEach(i => i.addEventListener('input', calcular));
-    document.querySelectorAll('input').forEach(i => i.addEventListener('change', calcular));
+    // 2. FUNÇÃO DE ENVIO AUTOMÁTICO (WEBHOOK)
+    function enviarWebhook() {
+        if (!window.discordUser) return alert("Faça login para enviar!");
 
-    function validarCampos() {
-        const campos = [
-            { id: 'inPrisaoPor', nome: 'Prisão por' },
-            { id: 'idPolicial', nome: 'ID Policial' },
-            { id: 'inAdvogado', nome: 'Advogado' },
-            { id: 'idAdvogado', nome: 'ID Advogado' },
-            { id: 'inNome', nome: 'Acusado' },
-            { id: 'inPass', nome: 'ID Acusado' }
-        ];
+        const user = window.discordUser;
+        const fiancaPaga = document.getElementById('fiancaSim').checked ? "SIM" : "NÃO";
 
-        for (let campo of campos) {
-            if (!document.getElementById(campo.id).value.trim()) {
-                alert(`O campo "${campo.nome}" é obrigatório!`);
-                document.getElementById(campo.id).focus();
-                return false;
-            }
-        }
-        return true;
+        const payload = {
+            username: user.username,
+            avatar_url: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`,
+            embeds: [{
+                title: "📑 FICHA CRIMINAL - CAPITAL BRASIL NORTE",
+                color: 1052672,
+                fields: [
+                    { name: "👤 Acusado", value: `${document.getElementById('inNome').value} (ID: ${document.getElementById('inPass').value})`, inline: true },
+                    { name: "👮 Oficial", value: `<@${user.id}> (ID: ${document.getElementById('idPolicial').value})`, inline: true },
+                    { name: "⚖️ Advogado", value: `${document.getElementById('inAdvogado').value} (ID: ${document.getElementById('idAdvogado').value})`, inline: true },
+                    { name: "⏱️ Pena Final", value: `${document.getElementById('resPenaFinal').innerText}`, inline: true },
+                    { name: "💰 Multa", value: `${document.getElementById('resMulta').innerText}`, inline: true },
+                    { name: "🔓 Fiança Paga?", value: fiancaPaga, inline: true },
+                    { name: "📂 Crimes", value: document.getElementById('listaCrimes').innerText },
+                    { name: "📝 Relatório", value: document.getElementById('inRelatorio').value || "Nenhuma descrição informada." }
+                ],
+                footer: { text: `Enviado em: ${document.getElementById('inData').value} às ${document.getElementById('inHora').value}` }
+            }]
+        };
+
+        fetch(WEBHOOK_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+        .then(() => alert("✅ Relatório enviado com sucesso!"))
+        .catch(() => alert("❌ Erro ao enviar para o Discord."));
     }
 
     function copiar() {
-        if (!validarCampos()) return;
-        const data = document.getElementById('inData').value || "---";
-        const hora = document.getElementById('inHora').value || "---";
-        const nome = document.getElementById('inNome').value;
-        const pass = document.getElementById('inPass').value;
-        const idPolicial = document.getElementById('idPolicial').value;
-        const idAdvogado = document.getElementById('idAdvogado').value;
-        const relatorio = document.getElementById('inRelatorio').value || "---";
-        const penaBase = document.getElementById('resPena').innerText;
-        const penaFinal = document.getElementById('resPenaFinal').innerText;
-        const multa = document.getElementById('resMulta').innerText;
-        const fianca = document.getElementById('resFianca').innerText;
-        const statusPago = document.getElementById('fiancaSim').checked ? "SIM" : "NÃO";
-        const advogado = document.getElementById('inAdvogado').value;
-        const prisaoPor = document.getElementById('inPrisaoPor').value;
-
-        let crimes = [];
-        document.querySelectorAll('.crime-check:checked').forEach(c => crimes.push(c.value));
-        let atenuantes = [];
-        document.querySelectorAll('.atenuante-check:checked').forEach(a => atenuantes.push(a.value));
-
-        const statusFianca = (fianca === "INAFIANÇÁVEL") ? "INAFIANÇÁVEL" : `${fianca} (Paga: ${statusPago})`;
-
-        const texto = `**RELATÓRIO POLICIAL**
-📅 **Data:** ${data} | 🕒 **Hora:** ${hora}
-👤 **Acusado:** ${nome} | 🆔 **Passaporte:** ${pass}
-👮 **Prisão por:** ${prisaoPor} | 🆔 **ID Policial:** ${idPolicial}
-⚖️ **Advogado:** ${advogado} | 🆔 **ID Advogado:** ${idAdvogado}
-
-📝 **Relatório:** ${relatorio}
-
-📂 **Artigos:** ${crimes.join(", ") || "Nenhum"}
-⚖️ **Atenuantes:** ${atenuantes.join(", ") || "Nenhuma"}
-⏱️ **Pena Base:** ${penaBase}
-📉 **Pena Final:** ${penaFinal}
-💰 **Multa:** ${multa}
-🔓 **Fiança:** ${statusFianca}`;
-
-        navigator.clipboard.writeText(texto).then(() => alert("Copiado com sucesso!"));
+        const texto = `**RELATÓRIO POLICIAL - CBN**\nOficial: ${document.getElementById('user-name').innerText}\nAcusado: ${document.getElementById('inNome').value}\nPena: ${document.getElementById('resPenaFinal').innerText}\nMulta: ${document.getElementById('resMulta').innerText}`;
+        navigator.clipboard.writeText(texto);
+        alert("Copiado!");
     }
 
-    async function enviarWebhook() {
-        if (!validarCampos()) return;
-
-        const webhookURL = "https://discord.com/api/webhooks/1482762981619273849/KAewO8iKAejhA2PcVUcjZba_V-dcm4sxhxXl6zvgSIAxJM2uS1YiAmljoBtQTZ6PVu-l";
-        
-        const data = document.getElementById('inData').value;
-        const hora = document.getElementById('inHora').value;
-        const nome = document.getElementById('inNome').value;
-        const pass = document.getElementById('inPass').value;
-        const idPolicial = document.getElementById('idPolicial').value;
-        const idAdvogado = document.getElementById('idAdvogado').value;
-        const relatorio = document.getElementById('inRelatorio').value || "Sem detalhes.";
-        const penaBase = document.getElementById('resPena').innerText;
-        const penaFinal = document.getElementById('resPenaFinal').innerText;
-        const multa = document.getElementById('resMulta').innerText;
-        const fianca = document.getElementById('resFianca').innerText;
-        const statusPago = document.getElementById('fiancaSim').checked ? "SIM" : "NÃO";
-        
-        let crimes = [];
-        document.querySelectorAll('.crime-check:checked').forEach(c => crimes.push(c.value));
-        let atenuantesArr = [];
-        document.querySelectorAll('.atenuante-check:checked').forEach(a => atenuantesArr.push(a.value));
-
-        const embed = {
-            title: "⚖️ REGISTRO CRIMINAL - CBN",
-            color: 4363486,
-            thumbnail: { url: `https://cdn.discordapp.com/avatars/${window.discordUser.id}/${window.discordUser.avatar}.png` },
-            fields: [
-                { name: "👤 Acusado", value: `${nome} (ID: ${pass})`, inline: true },
-                { name: "👮 Oficial Responsável", value: `${document.getElementById('inPrisaoPor').value} (ID: ${idPolicial})`, inline: true },
-                { name: "🚨 PENA FINAL", value: `**${penaFinal}**`, inline: true },
-                { name: "💰 Multa", value: multa, inline: true },
-                { name: "🔓 Fiança", value: (fianca === "INAFIANÇÁVEL") ? "🚫 INAFIANÇÁVEL" : `${fianca} (Paga: ${statusPago})`, inline: true },
-                { name: "⚖️ Advogado", value: `${document.getElementById('inAdvogado').value} (ID: ${idAdvogado})`, inline: true },
-                { name: "📂 Artigos Selecionados", value: crimes.join("\n") || "Nenhum", inline: false },
-                { name: "⚖️ Atenuantes", value: atenuantesArr.join(", ") || "Nenhuma", inline: false },
-                { name: "📝 Relatório", value: relatorio, inline: false }
-            ],
-            footer: { 
-                text: `Oficial logado: ${window.discordUser.username}`, 
-                icon_url: `https://cdn.discordapp.com/avatars/${window.discordUser.id}/${window.discordUser.avatar}.png` 
-            },
-            timestamp: new Date()
-        };
-
-        const response = await fetch(webhookURL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ embeds: [embed] })
-        });
-
-        if(response.ok) alert("Ficha enviada com sucesso!");
-    }
+    // Inicializa os listeners para cálculo automático
+    document.querySelectorAll('input, textarea, .crime-check, .atenuante-check').forEach(el => {
+        el.addEventListener('change', calcular);
+        el.addEventListener('input', calcular);
+    });
 </script>
 </body>
 </html>
