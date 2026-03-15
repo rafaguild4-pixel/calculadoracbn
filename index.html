@@ -192,7 +192,7 @@
             <span class="categoria-header">7. OUTROS CRIMES</span>
             <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="50000" value="250º Maus-tratos"> 250º Maus-tratos</label>
             <label class="option-item"><input type="checkbox" class="crime-check" data-pena="900" data-multa="50000" data-fianca="80000" value="251º Prevaricação"> 251º Prevaricação</label>
-            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="50000" value="252º Abuso de autoridade"> 252º Abuso de autoridade</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="50000" value="252º Abuso de autoridade"> 252º Abuso de autorauthority</label>
             <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="30000" data-fianca="50000" value="253º Conspiração"> 253º Conspiração</label>
             <label class="option-item"><input type="checkbox" class="crime-check" data-pena="1200" data-multa="250000" data-fianca="0" value="254º Corrupção Ativa"> 254º Corrupção Ativa</label>
             <label class="option-item"><input type="checkbox" class="crime-check" data-pena="1200" data-multa="250000" data-fianca="0" value="255º Corrupção Passiva"> 255º Corrupção Passiva</label>
@@ -319,9 +319,10 @@
         ];
 
         for (let campo of campos) {
-            if (!document.getElementById(campo.id).value.trim()) {
+            const elemento = document.getElementById(campo.id);
+            if (!elemento || !elemento.value.trim()) {
                 alert(`O campo "${campo.nome}" é obrigatório!`);
-                document.getElementById(campo.id).focus();
+                if(elemento) elemento.focus();
                 return false;
             }
         }
@@ -343,7 +344,6 @@
         const fianca = document.getElementById('resFianca').innerText;
         const statusPago = document.getElementById('fiancaSim').checked ? "SIM" : "NÃO";
         const advogado = document.getElementById('inAdvogado').value;
-        const prisaoPor = document.getElementById('inPrisaoPor').value;
 
         let crimes = [];
         document.querySelectorAll('.crime-check:checked').forEach(c => crimes.push(c.value));
@@ -369,6 +369,7 @@
     }
 
     async function enviarWebhook() {
+        // Validação adicionada aqui
         if (!validarCampos()) return;
 
         const webhookURL = "https://discord.com/api/webhooks/1482762981619273849/KAewO8iKAejhA2PcVUcjZba_V-dcm4sxhxXl6zvgSIAxJM2uS1YiAmljoBtQTZ6PVu-l";
@@ -378,8 +379,8 @@
         const nome = document.getElementById('inNome').value;
         const pass = document.getElementById('inPass').value;
         const idPolicial = document.getElementById('idPolicial').value;
-        const idAdvogado = document.getElementById('idAdvogado').value;
         const nomeAdvogado = document.getElementById('inAdvogado').value;
+        const idAdvogado = document.getElementById('idAdvogado').value;
         const relatorio = document.getElementById('inRelatorio').value || "Sem detalhes.";
         const penaBase = document.getElementById('resPena').innerText;
         const penaFinal = document.getElementById('resPenaFinal').innerText;
@@ -394,7 +395,7 @@
 
         const embed = {
             title: "⚖️ NOVA FICHA CRIMINAL - CAPITAL BRASIL NORTE",
-            color: 3447003, // Azul Lateral
+            color: 3447003,
             description: `
 👤 **Acusado:** ${nome} (ID: ${pass})
 👮 **Policial:** <@${idPolicial}> | (ID: ${idPolicial})
@@ -423,9 +424,9 @@
                 body: JSON.stringify({ embeds: [embed] })
             });
             if (response.ok) alert("Relatório enviado com sucesso!");
-            else alert("Erro ao enviar.");
+            else alert("Erro ao enviar para o Discord.");
         } catch (e) {
-            alert("Erro na conexão.");
+            alert("Erro na conexão com o Webhook.");
         }
     }
 </script>
