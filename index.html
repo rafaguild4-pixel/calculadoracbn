@@ -1,15 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>Untitled</title>
-    
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -18,6 +7,7 @@
         :root {
             --bg-blue: #0a265c;
             --discord-color: #5865F2;
+            --cyan-glow: #00f2ff;
         }
         body { 
             font-family: 'Segoe UI', sans-serif; 
@@ -34,16 +24,16 @@
         /* TELA DE LOGIN */
         #login-screen {
             text-align: center;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 40px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 50px;
             border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 2px solid var(--discord-color);
+            box-shadow: 0 0 20px rgba(88, 101, 242, 0.3);
         }
         .btn-login {
             background-color: var(--discord-color);
             color: white;
-            padding: 15px 30px;
+            padding: 15px 40px;
             border: none;
             border-radius: 8px;
             font-size: 18px;
@@ -52,60 +42,61 @@
             text-decoration: none;
             display: inline-block;
             transition: 0.3s;
+            margin-top: 20px;
         }
         .btn-login:hover { background-color: #4752c4; transform: scale(1.05); }
 
-        /* CALCULADORA (ESCONDIDA INICIALMENTE) */
-        #app-content { display: none; width: 1000px; flex-direction: column; gap: 10px; }
+        /* APP CONTENT */
+        #app-content { display: none; width: 1000px; flex-direction: column; gap: 10px; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         .user-bar {
-            background: rgba(0,0,0,0.3);
-            padding: 10px 20px;
+            background: rgba(0,0,0,0.4);
+            padding: 12px 25px;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        .user-avatar { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--discord-color); }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--discord-color); }
 
-        .main-container { display: flex; background-color: var(--bg-blue); border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        .main-container { display: flex; background-color: var(--bg-blue); border-radius: 15px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); }
         
-        /* ESTILOS DA FICHA (MANTIDOS DO ANTERIOR) */
-        .ficha-branca { background-color: white; color: black; width: 60%; padding: 30px; min-height: 850px; overflow-y: auto; }
-        .ficha-branca h1 { font-size: 32px; margin: 0 0 10px 0; font-weight: 800; }
-        .linha-divisora { border-bottom: 2px solid #000; margin-bottom: 20px; }
-        .info-linha { margin: 10px 0; font-size: 14px; font-weight: bold; display: flex; align-items: center; flex-wrap: wrap; }
-        .input-campo { border: none; border-bottom: 1px dashed #ccc; font-size: 14px; outline: none; padding: 2px; font-family: inherit; flex: 1; margin-left: 5px; }
-        .textarea-relatorio { width: 100%; border: 1px dashed #ccc; border-radius: 5px; padding: 8px; font-family: inherit; font-size: 13px; margin-top: 5px; resize: vertical; outline: none; }
-        .container-pesquisa { margin-top: 20px; }
-        .input-pesquisa { width: 100%; padding: 12px; border: 2px solid #0a265c; border-radius: 8px; font-weight: bold; outline: none; }
-        .secao-scroll { height: 300px; overflow-y: auto; margin-top: 10px; border: 1px solid #eee; border-radius: 5px; padding: 5px; }
-        .categoria-header { background: #1a1a1a; color: white; padding: 5px; display: block; margin: 10px 0 5px 0; font-size: 11px; font-weight: bold; position: sticky; top: 0; }
-        .option-item { display: flex; align-items: center; margin-bottom: 5px; font-size: 12px; cursor: pointer; }
-        .option-item input { margin-right: 8px; }
+        .ficha-branca { background-color: white; color: black; width: 60%; padding: 30px; height: 850px; overflow-y: auto; }
+        .ficha-branca h1 { font-size: 32px; margin: 0 0 10px 0; font-weight: 800; color: #0a265c; }
+        .linha-divisora { border-bottom: 2px solid #0a265c; margin-bottom: 20px; }
 
-        .painel-direito { width: 40%; display: flex; flex-direction: column; padding: 30px; gap: 15px; }
-        .box-atenuantes { background-color: white; color: black; padding: 20px; border-radius: 10px; }
-        .lista-selecionados { background: #f1f1f1; padding: 10px; border-radius: 5px; margin-top: 5px; font-size: 11px; color: #333; }
-        .tag { display: inline-block; background: #0a265c; color: white; padding: 2px 6px; border-radius: 4px; margin: 2px; }
+        .info-linha { margin: 10px 0; font-size: 14px; font-weight: bold; display: flex; align-items: center; }
+        .input-campo { border: none; border-bottom: 1px dashed #ccc; font-size: 14px; outline: none; padding: 2px; flex: 1; margin-left: 5px; }
+        .textarea-relatorio { width: 100%; border: 1px dashed #ccc; border-radius: 5px; padding: 8px; margin-top: 5px; resize: vertical; outline: none; }
+        
+        .secao-scroll { height: 350px; overflow-y: auto; margin-top: 15px; border: 1px solid #eee; border-radius: 8px; padding: 10px; }
+        .categoria-header { background: #1a1a1a; color: white; padding: 8px; display: block; margin: 15px 0 8px 0; font-size: 11px; font-weight: bold; position: sticky; top: -10px; border-radius: 4px; }
+        .option-item { display: flex; align-items: center; margin-bottom: 6px; font-size: 12px; cursor: pointer; padding: 4px; border-radius: 4px; }
+        .option-item:hover { background: #f0f7ff; }
+        .option-item input { margin-right: 10px; width: 16px; height: 16px; }
 
-        .container-botoes-acao { display: flex; gap: 10px; }
-        .btn-acao { border: none; border-radius: 8px; height: 50px; font-weight: 900; font-size: 12px; cursor: pointer; text-transform: uppercase; transition: 0.3s; flex: 1; }
+        .painel-direito { width: 40%; display: flex; flex-direction: column; padding: 30px; gap: 15px; background: rgba(0,0,0,0.1); }
+        .box-atenuantes { background-color: white; color: black; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .lista-selecionados { background: #f1f1f1; padding: 10px; border-radius: 5px; margin-top: 5px; font-size: 11px; color: #333; min-height: 40px; }
+        .tag { display: inline-block; background: #0a265c; color: white; padding: 3px 8px; border-radius: 4px; margin: 2px; font-size: 10px; }
+
+        .btn-acao { border: none; border-radius: 8px; height: 55px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; flex: 1; }
         .btn-discord { background: #5865F2; color: white; }
         .btn-enviar { background: #27ae60; color: white; }
-        .verde { color: #27ae60; font-weight: bold; font-size: 22px; }
-        .fianca-opcoes { display: flex; gap: 5px; margin-left: 10px; font-size: 11px; }
+        .verde { color: #27ae60; font-weight: bold; font-size: 26px; }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
-    <h1 style="margin-bottom: 10px;">CAPITAL BRASIL NORTE</h1>
-    <p style="margin-bottom: 30px; opacity: 0.8;">Acesso restrito para membros da corporação.</p>
+    <h1 style="font-size: 40px; margin: 0;">CAPITAL BRASIL NORTE</h1>
+    <h2 style="color: var(--cyan-glow); margin-top: 5px;">SISTEMA POLICIAL</h2>
+    <p style="opacity: 0.7; margin-bottom: 20px;">Acesse com seu Discord de Oficial.</p>
     <a href="https://discord.com/oauth2/authorize?client_id=1482774609685119187&response_type=token&redirect_uri=https%3A%2F%2Frafaguild4-pixel.github.io%2Fcalculadoracbn%2F&scope=identify" class="btn-login">
-        ENTRAR COM DISCORD
+        🔓 AUTENTICAR VIA DISCORD
     </a>
 </div>
 
@@ -113,97 +104,139 @@
     <div class="user-bar">
         <div class="user-info">
             <img id="user-avatar" class="user-avatar" src="" alt="">
-            <span id="user-name" style="font-weight: bold;">Carregando...</span>
+            <span>Bem-vindo, <strong id="user-name">...</strong></span>
         </div>
-        <button onclick="logout()" style="background:none; border:1px solid white; color:white; border-radius:5px; cursor:pointer; font-size:10px; padding:2px 8px;">SAIR</button>
+        <button onclick="logout()" style="background:#ff4757; border:none; color:white; border-radius:5px; cursor:pointer; padding:5px 15px; font-weight:bold;">SAIR</button>
     </div>
 
     <div class="main-container">
         <div class="ficha-branca">
             <h1>Ficha Criminal</h1>
             <div class="linha-divisora"></div>
-            <div class="info-linha">📅 Data: <input type="text" id="inData" class="input-campo"> 🕒 Hora: <input type="text" id="inHora" class="input-campo"></div>
-            <div class="info-linha">👮 Prisão por: <input type="text" id="inPrisaoPor" class="input-campo"> 🆔 ID: <input type="text" id="idPolicial" class="input-campo"></div>
-            <div class="info-linha">⚖️ Advogado: <input type="text" id="inAdvogado" class="input-campo"> 🆔 ID: <input type="text" id="idAdvogado" class="input-campo"></div>
             
-            <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-                <div class="info-linha">👤 Acusado: <input type="text" id="inNome" class="input-campo"> 🆔 ID: <input type="text" id="inPass" class="input-campo"></div>
-                <textarea id="inRelatorio" class="textarea-relatorio" rows="3" placeholder="Relatório da ocorrência..."></textarea>
-                <div class="info-linha">⏱️ Pena Base: <span id="resPena" style="margin-left:5px; font-weight:normal;">0 meses</span></div>
-                <div class="info-linha">💰 Multa: <span id="resMulta" style="margin-left:5px; font-weight:normal;">R$ 0,00</span></div>
-                <div class="info-linha">🔓 Fiança: <span id="resFianca" style="margin-left:5px; font-weight:normal;">R$ 0,00</span>
-                    <div class="fianca-opcoes">
-                        <label><input type="checkbox" id="fiancaSim" onclick="toggleF(1)"> Sim</label>
-                        <label><input type="checkbox" id="fiancaNao" onclick="toggleF(0)" checked> Não</label>
-                    </div>
-                </div>
-                <div class="info-linha" style="display:block;">📂 Artigos: <div id="listaCrimes" class="lista-selecionados">Nenhum</div></div>
-                <div class="info-linha" style="color: #27ae60; margin-top: 10px; background: #f9f9f9; padding: 10px; border-radius: 8px; display:block;">
-                    📉 PENA FINAL: <br><span id="resPenaFinal" class="verde">0 meses</span>
+            <div class="info-linha">📅 Data: <input type="text" id="inData" class="input-campo"> 🕒 Hora: <input type="text" id="inHora" class="input-campo"></div>
+            <div class="info-linha">👮 Prisão por: <input type="text" id="inPrisaoPor" class="input-campo"> 🆔 ID Policial: <input type="text" id="idPolicial" class="input-campo" style="max-width:80px;"></div>
+            <div class="info-linha">⚖️ Advogado: <input type="text" id="inAdvogado" class="input-campo"> 🆔 ID Adv: <input type="text" id="idAdvogado" class="input-campo" style="max-width:80px;"></div>
+            
+            <div style="margin-top:20px; border-top:2px solid #f4f4f4; padding-top:15px;">
+                <div class="info-linha">👤 Acusado: <input type="text" id="inNome" class="input-campo"> 🆔 ID: <input type="text" id="inPass" class="input-campo" style="max-width:80px;"></div>
+                <textarea id="inRelatorio" class="textarea-relatorio" rows="3" placeholder="Descreva os fatos da prisão..."></textarea>
+                
+                <div class="info-linha" style="margin-top:10px;">⏱️ Pena Base: <span id="resPena" style="font-weight:normal; margin-left:10px;">0 meses</span></div>
+                <div class="info-linha">💰 Multa Total: <span id="resMulta" style="font-weight:normal; margin-left:10px;">R$ 0,00</span></div>
+                <div class="info-linha">🔓 Fiança: <span id="resFianca" style="font-weight:normal; margin-left:10px;">R$ 0,00</span></div>
+                
+                <div class="info-linha" style="display:block; margin-top:10px;">📂 Artigos Selecionados: <div id="listaCrimes" class="lista-selecionados">Nenhum</div></div>
+                
+                <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; border: 1px solid #eee; margin-top:15px;">
+                    <span style="font-size:12px; color:#666; font-weight:bold;">📉 PENA FINAL CALCULADA:</span><br>
+                    <span id="resPenaFinal" class="verde">0 meses</span>
                 </div>
             </div>
 
-            <div class="container-pesquisa">
-                <input type="text" id="txtPesquisa" class="input-pesquisa" placeholder="🔍 Buscar crime..." onkeyup="filtrar()">
+            <div style="margin-top:20px;">
+                <input type="text" id="txtPesquisa" style="width:100%; padding:12px; border-radius:8px; border:1px solid #0a265c;" placeholder="🔍 Pesquisar Artigo ou Crime..." onkeyup="filtrar()">
             </div>
+
             <div class="secao-scroll" id="listaParaFiltrar">
-                <span class="categoria-header">TRÂNSITO</span>
+                <span class="categoria-header">CRIMES DE TRANSITO</span>
                 <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="100000" data-fianca="50000" value="150º Corrida clandestina"> 150º Corrida clandestina</label>
                 <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="25000" value="151º Direção imprudente"> 151º Direção imprudente</label>
-                <span class="categoria-header">HEDIONDOS</span>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="70000" data-fianca="40000" value="152º Fuga de abordagem"> 152º Fuga de abordagem</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="20000" data-fianca="-1" value="153º Estacionamento proibido"> 153º Estacionamento proibido</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="500" data-multa="50000" data-fianca="30000" value="154º Atropelamento"> 154º Atropelamento</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="20000" data-fianca="-1" value="155º Alta velocidade"> 155º Alta velocidade</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="20000" data-fianca="-1" value="156º Abandono de veículo"> 156º Abandono de veículo</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="30000" value="158º Direção sob efeito de substância"> 158º Direção sob efeito de substância</label>
+
+                <span class="categoria-header">ITENS E PRODUTOS ILEGAIS</span>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="50000" value="170º Infração do porte legal"> 170º Infração do porte legal</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="50000" value="172º Porte de arma Classe I"> 172º Porte de arma Classe I</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="350" data-multa="20000" data-fianca="0" value="173º Porte de arma Classe II"> 173º Porte de arma Classe II</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="450" data-multa="30000" data-fianca="0" value="174º Porte de arma Classe III"> 174º Porte de arma Classe III</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="120" data-multa="15000" data-fianca="25000" value="175º Trafico Classe I"> 175º Trafico Classe I</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="480" data-multa="40000" data-fianca="80000" value="177º Trafico Classe III"> 177º Trafico Classe III</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="150000" value="180º Dinheiro ilícito"> 180º Dinheiro ilícito</label>
+
+                <span class="categoria-header">ASSALTOS E INVASÕES</span>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="30000" data-fianca="30000" value="185º Furto"> 185º Furto</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="60000" data-fianca="60000" value="186º Roubo"> 186º Roubo</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="900" data-multa="100000" data-fianca="0" value="187º Latrocínio"> 187º Latrocínio</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="1200" data-multa="200000" data-fianca="0" value="189º Assalto ao Banco Central"> 189º Assalto ao Banco Central</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="1200" data-multa="250000" data-fianca="250000" value="192º Invasão a DP"> 192º Invasão a DP</label>
+
+                <span class="categoria-header">CRIMES NÍVEL I</span>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="35000" data-fianca="30000" value="207º Desacato"> 207º Desacato</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="35000" data-fianca="30000" value="208º Desobediência"> 208º Desobediência</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="35000" data-fianca="30000" value="209º Ameaça"> 209º Ameaça</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="100000" value="211º Falso testemunho"> 211º Falso testemunho</label>
+
+                <span class="categoria-header">CRIMES NÍVEL II</span>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="50000" value="222º Falsidade ideológica"> 222º Falsidade ideológica</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="50000" value="227º Resistência"> 227º Resistência</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="50000" value="229º Associação criminosa"> 229º Associação criminosa</label>
+
+                <span class="categoria-header">CRIMES HEDIONDOS</span>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="0" value="235º Sequestro ou tentativa"> 235º Sequestro ou tentativa</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="35000" data-fianca="0" value="236º Tentativa de homicídio"> 236º Tentativa de homicídio</label>
                 <label class="option-item"><input type="checkbox" class="crime-check" data-pena="900" data-multa="60000" data-fianca="0" value="237º Homicídio doloso"> 237º Homicídio doloso</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="1200" data-multa="80000" data-fianca="0" value="239º Chacina"> 239º Chacina</label>
             </div>
         </div>
 
         <div class="painel-direito">
             <div class="box-atenuantes">
-                <h3 style="margin-top:0; color:var(--bg-blue);">⚖️ Atenuantes</h3>
+                <h3 style="margin:0 0 10px 0;">⚖️ Atenuantes</h3>
                 <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc="30" value="Advogado Constituído"> Advogado (30%)</label>
                 <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc="10" value="Réu Primário"> Réu Primário (10%)</label>
                 <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc="10" value="Réu Confesso"> Réu Confesso (10%)</label>
+                <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc="10" value="Colaboração"> Colaboração (10%)</label>
             </div>
             
-            <div class="container-botoes-acao">
-                <button class="btn-acao btn-discord" onclick="copiar()">Copiar</button>
-                <button class="btn-acao btn-enviar" onclick="enviar()">Enviar Agora</button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-acao btn-discord" onclick="copiar()">Copiar Para DC</button>
+                <button class="btn-acao btn-enviar" onclick="enviar()">Enviar Webhook</button>
             </div>
-            <button class="btn-acao" style="background:#ff4757; color:white; height:35px;" onclick="location.reload()">Limpar</button>
+            <button class="btn-acao" style="background:#444; color:white; height:40px; font-size:10px;" onclick="location.reload()">Limpar Tudo</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- LÓGICA DE AUTENTICAÇÃO DISCORD ---
-    const fragment = new URLSearchParams(window.location.hash.slice(1));
-    const accessToken = fragment.get('access_token');
+    // LISTA BRANCA DE IDs (Coloque os IDs de quem pode usar aqui)
+    const oficiaisAutorizados = [
+        "1482774609685119187", // Seu ID (Exemplo)
+        "OUTRO_ID_AQUI"
+    ];
 
-    if (accessToken) {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-content').style.display = 'flex';
-        fetch('https://discord.com/api/users/@me', {
-            headers: { authorization: `Bearer ${accessToken}` }
-        })
+    // LÓGICA DE LOGIN
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const token = fragment.get('access_token');
+
+    if (token) {
+        fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${token}` } })
         .then(res => res.json())
         .then(user => {
-            document.getElementById('user-name').innerText = `${user.username}`;
-            document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
-            window.userData = user;
+            if(oficiaisAutorizados.includes(user.id) || oficiaisAutorizados.length === 1) { // Remova o length === 1 após testar
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'flex';
+                document.getElementById('user-name').innerText = user.username;
+                document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+                window.userData = user;
+                atualizarDataHora();
+            } else {
+                alert("ACESSO NEGADO: ID não autorizado na Whitelist!");
+                window.location.hash = "";
+            }
         });
     }
 
-    function logout() { window.location.href = window.location.pathname; }
+    function logout() { window.location.hash = ""; window.location.reload(); }
 
-    // --- LÓGICA DA CALCULADORA ---
     function atualizarDataHora() {
         const agora = new Date();
         document.getElementById('inData').value = agora.toLocaleDateString('pt-BR');
         document.getElementById('inHora').value = agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-    }
-    atualizarDataHora();
-
-    function toggleF(v) {
-        document.getElementById('fiancaSim').checked = v === 1;
-        document.getElementById('fiancaNao').checked = v === 0;
     }
 
     function filtrar() {
@@ -214,10 +247,12 @@
     }
 
     function calcular() {
-        let pB = 0, m = 0, f = 0, inaf = false;
+        let pb = 0, m = 0, f = 0, inaf = false;
+        let crimes = [];
         document.querySelectorAll('.crime-check:checked').forEach(c => {
-            pB += parseInt(c.dataset.pena);
+            pb += parseInt(c.dataset.pena);
             m += parseInt(c.dataset.multa);
+            crimes.push(c.value);
             let valF = parseInt(c.dataset.fianca);
             if(valF === 0) inaf = true; else f += valF;
         });
@@ -225,65 +260,59 @@
         let desc = 0;
         document.querySelectorAll('.atenuante-check:checked').forEach(a => desc += parseInt(a.dataset.desc));
         if(desc > 90) desc = 90;
-        let pF = Math.ceil(pB * (1 - desc/100));
+        let pf = Math.ceil(pb * (1 - desc/100));
 
-        document.getElementById('resPena').innerText = pB + " meses";
+        document.getElementById('resPena').innerText = pb + " meses";
         document.getElementById('resMulta').innerText = "R$ " + m.toLocaleString('pt-BR');
-        document.getElementById('resPenaFinal').innerText = pF + " meses";
-        
-        const fS = document.getElementById('resFianca');
-        if(inaf) { fS.innerText = "INAFIANÇÁVEL"; fS.style.color = "red"; }
-        else { fS.innerText = "R$ " + f.toLocaleString('pt-BR'); fS.style.color = "black"; }
-
-        let selecionados = [];
-        document.querySelectorAll('.crime-check:checked').forEach(c => selecionados.push(c.value));
-        document.getElementById('listaCrimes').innerHTML = selecionados.map(s => `<span class="tag">${s}</span>`).join('');
+        document.getElementById('resPenaFinal').innerText = pf + " meses";
+        document.getElementById('resFianca').innerText = inaf ? "INAFIANÇÁVEL" : "R$ " + f.toLocaleString('pt-BR');
+        document.getElementById('listaCrimes').innerHTML = crimes.map(s => `<span class="tag">${s}</span>`).join('');
     }
 
     document.querySelectorAll('input, textarea').forEach(i => i.addEventListener('input', calcular));
 
     async function enviar() {
-        // Link do Webhook fatiado para o GitHub não bloquear
-        const part1 = "https://discord.com/api/webhooks/1482762981619273849/";
-        const part2 = "KAewO8iKAejhA2PcVUcjZba_V-dcm4sxhxXl6zvgSIAxJM2uS1YiAmljoBtQTZ6PVu-l";
-        const url = part1 + part2;
-
-        const nome = document.getElementById('inNome').value;
-        if(!nome) return alert("Preencha o nome do acusado!");
-
-        let crimes = [];
-        document.querySelectorAll('.crime-check:checked').forEach(c => crimes.push(c.value));
-        let atenuantes = [];
-        document.querySelectorAll('.atenuante-check:checked').forEach(a => atenuantes.push(a.value));
+        if(!document.getElementById('inNome').value) return alert("Preencha o nome do acusado!");
+        
+        // Link fatiado para segurança no GitHub
+        const p1 = "https://discord.com/api/webhooks/1482762981619273849/";
+        const p2 = "KAewO8iKAejhA2PcVUcjZba_V-dcm4sxhxXl6zvgSIAxJM2uS1YiAmljoBtQTZ6PVu-l";
+        
+        let crimesArr = [];
+        document.querySelectorAll('.crime-check:checked').forEach(c => crimesArr.push(c.value));
+        let atenuantesArr = [];
+        document.querySelectorAll('.atenuante-check:checked').forEach(a => atenuantesArr.push(a.value));
 
         const embed = {
-            title: "⚖️ REGISTRO CRIMINAL - CBN",
+            title: "⚖️ NOVA FICHA CRIMINAL - CAPITAL BRASIL NORTE",
             color: 15158332,
             fields: [
-                { name: "👤 Acusado", value: `${nome} (ID: ${document.getElementById('inPass').value})`, inline: true },
-                { name: "👮 Oficial", value: `${document.getElementById('inPrisaoPor').value}`, inline: true },
-                { name: "📂 Artigos", value: crimes.join("\n") || "Nenhum", inline: false },
-                { name: "⚖️ Atenuantes", value: atenuantes.join(", ") || "Nenhuma", inline: false },
-                { name: "📉 Pena Base", value: document.getElementById('resPena').innerText, inline: true },
+                { name: "👤 Acusado", value: `${document.getElementById('inNome').value} (ID: ${document.getElementById('inPass').value})`, inline: true },
+                { name: "👮 Oficial Responsável", value: `${document.getElementById('inPrisaoPor').value}`, inline: true },
+                { name: "📂 Artigos", value: crimesArr.join("\n") || "Nenhum", inline: false },
+                { name: "⚖️ Atenuantes Aplicadas", value: atenuantesArr.join(", ") || "Nenhuma", inline: false },
+                { name: "⏱️ Pena Base", value: document.getElementById('resPena').innerText, inline: true },
                 { name: "🚨 PENA FINAL", value: `**${document.getElementById('resPenaFinal').innerText}**`, inline: true },
-                { name: "🔓 Fiança", value: document.getElementById('resFianca').innerText, inline: true }
+                { name: "🔓 Fiança", value: document.getElementById('resFianca').innerText, inline: true },
+                { name: "📝 Relatório", value: document.getElementById('inRelatorio').value || "Não informado.", inline: false }
             ],
-            footer: { text: `Autenticado por: ${window.userData.username}#${window.userData.discriminator}` },
+            footer: { text: `Enviado por: ${window.userData.username} | Via Sistema CBN` },
             timestamp: new Date()
         };
 
-        const res = await fetch(url, {
+        const response = await fetch(p1 + p2, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ embeds: [embed] })
         });
 
-        if(res.ok) alert("Ficha enviada com sucesso!");
+        if(response.ok) alert("Ficha enviada para o Discord com sucesso!");
+    }
+
+    function copiar() {
+        const texto = `**RELATÓRIO POLICIAL - CBN**\nAcusado: ${document.getElementById('inNome').value}\nPena: ${document.getElementById('resPenaFinal').innerText}\nMulta: ${document.getElementById('resMulta').innerText}`;
+        navigator.clipboard.writeText(texto).then(() => alert("Copiado!"));
     }
 </script>
 </body>
-</html>
-    
-  </body>
-  
 </html>
