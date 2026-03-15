@@ -410,7 +410,7 @@
         const crimes = Array.from(document.querySelectorAll('.crime-check:checked')).map(c => c.value).join(', ');
         const atenuantes = Array.from(document.querySelectorAll('.atenuante-check:checked')).map(a => a.value).join(', ');
 
-        if (!oficial || !idOficial || !acusado || !idAcusado || idAdvogado || advogado) {
+        if (!oficial || !idOficial || !acusado || !idAcusado || !idAdvogado || !advogado) {
             alert("Preencha os campos obrigatórios (*)");
             return;
         }
