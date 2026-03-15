@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Calculadora penal CBN</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        :root {
+            --bg-blue: #0a265c;
+            --cyan-glow: #00f2ff;
+        }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--bg-blue); 
+            margin: 0; 
+            padding: 10px; 
+            display: flex; 
+            justify-content: center; 
+            color: white; 
+        }
+        
+        .main-container { display: flex; width: 1000px; background-color: var(--bg-blue); border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        .ficha-branca { background-color: white; color: black; width: 60%; padding: 30px; min-height: 850px; overflow-y: auto; }
+        .ficha-branca h1 { font-size: 32px; margin: 0 0 10px 0; font-weight: 800; }
+        .linha-divisora { border-bottom: 2px solid #000; margin-bottom: 20px; }
+
+        .info-linha { margin: 10px 0; font-size: 14px; font-weight: bold; display: flex; align-items: center; flex-wrap: wrap; }
+        .input-campo { border: none; border-bottom: 1px dashed #ccc; font-size: 14px; outline: none; padding: 2px; font-family: inherit; flex: 1; margin-left: 5px; }
+        
+        .textarea-relatorio { 
+            width: 100%; border: 1px dashed #ccc; border-radius: 5px; padding: 8px; 
+            font-family: inherit; font-size: 13px; margin-top: 5px; resize: vertical; outline: none;
+        }
+
+        .secao-scroll { height: 400px; overflow-y: auto; margin-top: 15px; padding-right: 10px; border: 1px solid #eee; border-radius: 5px; }
+        .categoria-header { background: #1a1a1a; color: white; padding: 6px 10px; display: block; margin: 12px 0 8px 0; font-size: 11px; font-weight: bold; text-transform: uppercase; position: sticky; top: 0; z-index: 10; }
+        
+        .option-item { display: flex; align-items: center; margin-bottom: 6px; font-size: 12px; cursor: pointer; padding: 2px 5px; transition: 0.2s; }
+        .option-item:hover { background: #f9f9f9; }
+        .option-item input { margin-right: 10px; width: 16px; height: 16px; cursor: pointer; }
+
+        .painel-direito { width: 40%; display: flex; flex-direction: column; padding: 30px; gap: 20px; }
+        
+        .box-atenuantes { background-color: white; color: black; width: 100%; padding: 20px; border-radius: 10px; box-sizing: border-box; }
+        .box-atenuantes h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #ddd; padding-bottom: 5px; color: var(--bg-blue); }
+
+        .lista-selecionados { 
+            background: #f1f1f1; 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin-top: 10px; 
+            font-size: 12px; 
+            color: #333;
+            min-height: 20px;
+        }
+        .tag {
+            display: inline-block;
+            background: #0a265c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 2px;
+            font-size: 11px;
+        }
+        .tag-atenuante { background: #27ae60; }
+
+        .btn-acao { 
+            background: var(--cyan-glow); border: none; border-radius: 8px; width: 100%; height: 60px; 
+            font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase; transition: 0.3s;
+        }
+        .btn-discord { background: #5865F2; color: white; }
+        .btn-discord:hover { background: #4752c4; }
+
+        .vermelho { color: #d63031; font-weight: bold; }
+        .verde { color: #27ae60; font-weight: bold; font-size: 22px; }
+        .resultado-texto { font-weight: normal; margin-left: 5px; }
+    </style>
+</head>
+<body onload="atualizarDataHora()">
+
+<div class="main-container">
+    <div class="ficha-branca">
+        <h1>Ficha Criminal CBN</h1>
+        <div class="linha-divisora"></div>
+
+        <div class="info-linha">📅 Data: <input type="text" id="inData" class="input-campo"> 🕒 Hora: <input type="text" id="inHora" class="input-campo"></div>
+        <div class="info-linha">👮🔒 Prisão por: <input type="text" id="inPrisaoPor" class="input-campo"> 🆔 ID: <input type="text" id="idPolicial" class="input-campo" style="max-width: 80px;"></div>
+        <div class="info-linha">⚖️ Advogado: <input type="text" id="inAdvogado" class="input-campo"> 🆔 ID: <input type="text" id="idAdvogado" class="input-campo" style="max-width: 80px;"></div>
+        
+        <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+            <div class="info-linha">👤 Acusado: <input type="text" id="inNome" class="input-campo"> 🆔 ID: <input type="text" id="inPass" class="input-campo" style="max-width: 80px;"></div>
+            
+            <textarea id="inRelatorio" class="textarea-relatorio" rows="3" placeholder="Descrição do ocorrido..."></textarea>
+
+            <div class="info-linha" style="margin-top:10px;">⏱️ Pena Base: <span id="resPena" class="resultado-texto">0 meses</span></div>
+            <div class="info-linha">💰 Multa Total: <span id="resMulta" class="resultado-texto">R$ 0,00</span></div>
+            <div class="info-linha">🔓 Fiança: <span id="resFianca" class="resultado-texto">R$ 0,00</span></div>
+            
+            <div class="info-linha" style="display: block; margin-top: 15px;">
+                📂 Artigos Selecionados:
+                <div id="listaCrimes" class="lista-selecionados">Nenhum crime selecionado.</div>
+            </div>
+            <div class="info-linha" style="display: block; margin-top: 5px;">
+                ⚖️ Atenuantes Aplicadas:
+                <div id="listaAtenuantes" class="lista-selecionados">Nenhuma atenuante.</div>
+            </div>
+
+            <div class="info-linha" style="color: #27ae60; margin-top: 10px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; display: block;">
+                📉 PENA FINAL (COM ATENUANTES): <br><span id="resPenaFinal" class="verde">0 meses</span>
+            </div>
+        </div>
+        
+        <div class="secao-scroll">
+            <span class="categoria-header">CRIMES DE TRANSITO</span>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="100000" data-fianca="50000" value="150º Corrida clandestina"> 150º Corrida clandestina</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="25000" value="151º Direção imprudente"> 151º Direção imprudente</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="70000" data-fianca="40000" value="152º Fuga de abordagem"> 152º Fuga de abordagem</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="20000" data-fianca="-1" value="153º Estacionamento proibido"> 153º Estacionamento proibido</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="500" data-multa="50000" data-fianca="30000" value="154º Atropelamento"> 154º Atropelamento</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="20000" data-fianca="-1" value="155º Alta velocidade"> 155º Alta velocidade</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="20000" data-fianca="-1" value="156º Abandono de veículo de trabalho"> 156º Abandono de veículo de trabalho</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="10000" data-fianca="-1" value="157º Uso de veículo danificado"> 157º Uso de veículo danificado</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="30000" value="158º Direção sob efeito de substância"> 158º Direção sob efeito de substância</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="20000" data-fianca="-1" value="159º Uso de insulfilm"> 159º Uso de insulfilm</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="90000" data-fianca="45000" value="160º Violação do espaço aéreo"> 160º Violação do espaço aéreo</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="200000" data-fianca="-1" value="161º Abandono de aeronave"> 161º Abandono de aeronave</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="50000" data-fianca="-1" value="162º Pouso em local proibido"> 162º Pouso em local proibido</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="200000" data-fianca="-1" value="163º Pilotar sem licença de voo"> 163º Pilotar sem licença de voo</label>
+
+            <span class="categoria-header">ITENS E PRODUTOS ILEGAIS</span>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="50000" value="170º Infração do porte legal"> 170º Infração do porte legal</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="50000" value="171º Porte ou posse ilegal de munições"> 171º Porte ou posse ilegal de munições</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="50000" value="172º Porte de arma Classe I"> 172º Porte de arma Classe I</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="350" data-multa="20000" data-fianca="0" value="173º Porte de arma Classe II"> 173º Porte de arma Classe II</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="450" data-multa="30000" data-fianca="0" value="174º Porte de arma Classe III"> 174º Porte de arma Classe III</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="120" data-multa="15000" data-fianca="25000" value="175º Trafico Classe I"> 175º Trafico Classe I</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="25000" data-fianca="40000" value="176º Trafico Classe II"> 176º Trafico Classe II</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="480" data-multa="40000" data-fianca="80000" value="177º Trafico Classe III"> 177º Trafico Classe III</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="30000" data-fianca="30000" value="178º Equipamento ilícito"> 178º Equipamento ilícito</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="30000" data-fianca="30000" value="179º Produto ilícito"> 179º Produto ilícito</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="150000" value="180º Dinheiro ilícito"> 180º Dinheiro ilícito</label>
+
+            <span class="categoria-header">ASSALTOS E INVASÕES</span>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="30000" data-fianca="30000" value="185º Furto"> 185º Furto</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="60000" data-fianca="60000" value="186º Roubo"> 186º Roubo</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="900" data-multa="100000" data-fianca="0" value="187º Latrocínio"> 187º Latrocínio</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="30000" data-fianca="30000" value="188º Assalto a caixa eletrônico"> 188º Assalto a caixa eletrônico</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="1200" data-multa="200000" data-fianca="0" value="189º Assalto ao Banco Central / Joalheria"> 189º Assalto ao Banco Central / Joalheria</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="50000" value="190º Assalto a estabelecimento comercial"> 190º Assalto a estabelecimento comercial</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="25000" value="191º Assalto a residência"> 191º Assalto a residência</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="1200" data-multa="250000" data-fianca="250000" value="192º Invasão a departamento de polícia"> 192º Invasão a departamento de polícia</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="50000" value="193º Invasão"> 193º Invasão</label>
+
+            <span class="categoria-header">CRIMES NÍVEL I</span>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="120" data-multa="10000" data-fianca="10000" value="200º Equipamento policial"> 200º Equipamento policial</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="25000" data-fianca="35000" value="201º Traje do poder público"> 201º Traje do poder público</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="120" data-multa="15000" data-fianca="15000" value="202º Ocultação facial"> 202º Ocultação facial</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="25000" data-fianca="35000" value="203º Injúria"> 203º Injúria</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="80000" value="204º Calúnia"> 204º Calúnia</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="30000" data-fianca="60000" value="205º Assédio"> 205º Assédio</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="400" data-multa="50000" data-fianca="100000" value="206º Perseguição/Stalking"> 206º Perseguição/Stalking</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="35000" data-fianca="30000" value="207º Desacato"> 207º Desacato</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="35000" data-fianca="30000" value="208º Desobediência"> 208º Desobediência</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="35000" data-fianca="30000" value="209º Ameaça"> 209º Ameaça</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="55000" data-fianca="50000" value="210º Receptação"> 210º Receptação</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="100000" value="211º Falso testemunho"> 211º Falso testemunho</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="25000" data-fianca="-1" value="212º Comportamento indisciplinar"> 212º Comportamento indisciplinar</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="20000" data-fianca="25000" value="213º Omissão de socorro"> 213º Omissão de socorro</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="50000" data-fianca="-1" value="214º Poluição sonora"> 214º Poluição sonora</label>
+
+            <span class="categoria-header">5. CRIMES NÍVEL II</span>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="35000" data-fianca="-1" value="220º Dano ao patrimônio pessoal"> 220º Dano ao patrimônio pessoal</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="0" data-multa="35000" data-fianca="-1" value="221º Dano ao patrimônio estadual"> 221º Dano ao patrimônio estadual</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="50000" value="222º Falsidade ideológica"> 222º Falsidade ideológica</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="50000" value="223º Inserção de dados falsos"> 223º Inserção de dados falsos</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="35000" value="224º Estelionato"> 224º Estelionato</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="35000" value="225º Fraude"> 225º Fraude</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="80000" value="226º Extorsão"> 226º Extorsão</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="50000" value="227º Resistência"> 227º Resistência</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="120" data-multa="30000" data-fianca="30000" value="228º Lesão corporal"> 228º Lesão corporal</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="50000" value="229º Associação criminosa"> 229º Associação criminosa</label>
+
+            <span class="categoria-header">6. CRIMES HEDIONDOS</span>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="0" value="235º Sequestro ou tentativa"> 235º Sequestro ou tentativa</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="35000" data-fianca="0" value="236º Tentativa de homicídio"> 236º Tentativa de homicídio</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="900" data-multa="60000" data-fianca="0" value="237º Homicídio doloso"> 237º Homicídio doloso</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="30000" data-fianca="60000" value="238º Homicídio culposo"> 238º Homicídio culposo</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="1200" data-multa="80000" data-fianca="0" value="239º Chacina"> 239º Chacina</label>
+
+            <span class="categoria-header">7. OUTROS CRIMES</span>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="50000" value="250º Maus-tratos"> 250º Maus-tratos</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="900" data-multa="50000" data-fianca="80000" value="251º Prevaricação"> 251º Prevaricação</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="50000" value="252º Abuso de autoridade"> 252º Abuso de autoridade</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="30000" data-fianca="50000" value="253º Conspiração"> 253º Conspiração</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="1200" data-multa="250000" data-fianca="0" value="254º Corrupção Ativa"> 254º Corrupção Ativa</label>
+            <label class="option-item"><input type="checkbox" class="crime-check" data-pena="1200" data-multa="250000" data-fianca="0" value="255º Corrupção Passiva"> 255º Corrupção Passiva</label>
+        </div>
+    </div>
+
+    <div class="painel-direito">
+        <div class="box-atenuantes">
+            <h3>⚖️ Atenuantes</h3>
+            <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc-val="30" value="Advogado Constituído"> Advogado Constituído (30%)</label>
+            <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc-val="10" value="Réu Primário"> Réu Primário (10%)</label>
+            <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc-val="10" value="Réu Confesso"> Réu Confesso (10%)</label>
+            <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc-val="10" value="Colaboração"> Colaboração (10%)</label>
+            <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc-val="30" value="Delação Premiada"> Delação Premiada (30%)</label>
+        </div>
+        <button class="btn-acao btn-discord" onclick="copiar()">Copiar Para Discord</button>
+        <button class="btn-acao" style="background: #ff4757; color: white; height: 40px; font-size: 12px; margin-top: 10px;" onclick="location.reload()">Limpar Tudo</button>
+    </div>
+</div>
+
+<script>
+    function atualizarDataHora() {
+        const agora = new Date();
+        document.getElementById('inData').value = agora.toLocaleDateString('pt-BR');
+        document.getElementById('inHora').value = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+    }
+
+    function calcular() {
+        let penaBase = 0, multa = 0, fianca = 0, inafiancavel = false;
+        let crimesSelecionados = [];
+        let atenuantesSelecionadas = [];
+
+        document.querySelectorAll('.crime-check:checked').forEach(c => {
+            penaBase += parseInt(c.dataset.pena);
+            multa += parseInt(c.dataset.multa);
+            crimesSelecionados.push(c.value);
+
+            let f = parseInt(c.dataset.fianca);
+            if (f === 0) inafiancavel = true; 
+            else if (f > 0) fianca += f;
+        });
+
+        let totalDesconto = 0;
+        document.querySelectorAll('.atenuante-check:checked').forEach(a => {
+            totalDesconto += parseInt(a.dataset.descVal);
+            atenuantesSelecionadas.push(a.value + " (" + a.dataset.descVal + "%)");
+        });
+
+        if (totalDesconto > 90) totalDesconto = 90; 
+        let penaFinal = Math.ceil(penaBase * (1 - totalDesconto / 100));
+
+        document.getElementById('resPena').innerText = penaBase + " meses";
+        document.getElementById('resMulta').innerText = "R$ " + multa.toLocaleString('pt-BR');
+        document.getElementById('resPenaFinal').innerText = penaFinal + " meses";
+        
+        const fSpan = document.getElementById('resFianca');
+        if (inafiancavel) {
+            fSpan.innerText = "INAFIANÇÁVEL";
+            fSpan.className = "vermelho resultado-texto";
+        } else {
+            fSpan.innerText = "R$ " + fianca.toLocaleString('pt-BR');
+            fSpan.className = "resultado-texto";
+        }
+
+        const divCrimes = document.getElementById('listaCrimes');
+        if(crimesSelecionados.length > 0) {
+            divCrimes.innerHTML = crimesSelecionados.map(crime => `<span class="tag">${crime}</span>`).join('');
+        } else {
+            divCrimes.innerHTML = "Nenhum crime selecionado.";
+        }
+
+        const divAtenuantes = document.getElementById('listaAtenuantes');
+        if(atenuantesSelecionadas.length > 0) {
+            divAtenuantes.innerHTML = atenuantesSelecionadas.map(at => `<span class="tag tag-atenuante">${at}</span>`).join('');
+        } else {
+            divAtenuantes.innerHTML = "Nenhuma atenuante.";
+        }
+    }
+
+    document.querySelectorAll('input, textarea').forEach(i => i.addEventListener('input', calcular));
+    document.querySelectorAll('input').forEach(i => i.addEventListener('change', calcular));
+
+    function copiar() {
+        const data = document.getElementById('inData').value || "---";
+        const hora = document.getElementById('inHora').value || "---";
+        const nome = document.getElementById('inNome').value || "---";
+        const pass = document.getElementById('inPass').value || "---";
+        const idPolicial = document.getElementById('idPolicial').value || "---";
+        const idAdvogado = document.getElementById('idAdvogado').value || "N/A";
+        const relatorio = document.getElementById('inRelatorio').value || "---";
+        const penaBase = document.getElementById('resPena').innerText; // PEGANDO A PENA TOTAL
+        const penaFinal = document.getElementById('resPenaFinal').innerText;
+        const multa = document.getElementById('resMulta').innerText;
+        const fianca = document.getElementById('resFianca').innerText;
+        const advogado = document.getElementById('inAdvogado').value || "N/A";
+        const prisaoPor = document.getElementById('inPrisaoPor').value || "---";
+
+        let crimes = [];
+        document.querySelectorAll('.crime-check:checked').forEach(c => crimes.push(c.value));
+
+        let atenuantes = [];
+        document.querySelectorAll('.atenuante-check:checked').forEach(a => atenuantes.push(a.value));
+
+        const texto = `**RELATÓRIO POLICIAL**
+📅 **Data:** ${data} | 🕒 **Hora:** ${hora}
+👤 **Acusado:** ${nome} | 🆔 **Passaporte:** ${pass}
+👮 **Prisão por:** ${prisaoPor} | 🆔 **ID Policial:** ${idPolicial}
+⚖️ **Advogado:** ${advogado} | 🆔 **ID Advogado:** ${idAdvogado}
+
+📝 **Relatório:** ${relatorio}
+
+📂 **Artigos:** ${crimes.join(", ") || "Nenhum"}
+⚖️ **Atenuantes:** ${atenuantes.join(", ") || "Nenhuma"}
+⏱️ **Pena Base:** ${penaBase}
+📉 **Pena Final (c/ Atenuantes):** ${penaFinal}
+💰 **Multa:** ${multa}
+🔓 **Fiança:** ${fianca}`;
+
+        navigator.clipboard.writeText(texto).then(() => alert("Copiado para o Discord!"));
+    }
+</script>
+
+</body>
+</html>
+    
+  </body>
+  
+</html>
