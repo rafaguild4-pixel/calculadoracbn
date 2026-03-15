@@ -3,7 +3,7 @@
 
   <head>
     <meta charset="UTF-8">
-    <title>Calculadora penal CBN</title>
+    <title>Untitled</title>
     
 
   </head>
@@ -43,7 +43,16 @@
             font-family: inherit; font-size: 13px; margin-top: 5px; resize: vertical; outline: none;
         }
 
-        .secao-scroll { height: 400px; overflow-y: auto; margin-top: 15px; padding-right: 10px; border: 1px solid #eee; border-radius: 5px; }
+        /* BARRA DE PESQUISA */
+        .container-pesquisa { margin-top: 20px; position: relative; }
+        .input-pesquisa { 
+            width: 100%; padding: 12px 15px; border: 2px solid #0a265c; border-radius: 8px; 
+            font-family: inherit; font-size: 14px; box-sizing: border-box; outline: none;
+            background: #f0f7ff; color: #0a265c; font-weight: bold;
+        }
+        .input-pesquisa::placeholder { color: #6a89cc; font-weight: normal; }
+
+        .secao-scroll { height: 350px; overflow-y: auto; margin-top: 10px; padding-right: 10px; border: 1px solid #eee; border-radius: 5px; }
         .categoria-header { background: #1a1a1a; color: white; padding: 6px 10px; display: block; margin: 12px 0 8px 0; font-size: 11px; font-weight: bold; text-transform: uppercase; position: sticky; top: 0; z-index: 10; }
         
         .option-item { display: flex; align-items: center; margin-bottom: 6px; font-size: 12px; cursor: pointer; padding: 2px 5px; transition: 0.2s; }
@@ -108,7 +117,11 @@
             </div>
         </div>
         
-        <div class="secao-scroll">
+        <div class="container-pesquisa">
+            <input type="text" id="txtPesquisa" class="input-pesquisa" placeholder="🔍 Pesquisar crime ou artigo..." onkeyup="filtrarCrimes()">
+        </div>
+
+        <div class="secao-scroll" id="listaParaFiltrar">
             <span class="categoria-header">CRIMES DE TRANSITO</span>
             <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="100000" data-fianca="50000" value="150º Corrida clandestina"> 150º Corrida clandestina</label>
             <label class="option-item"><input type="checkbox" class="crime-check" data-pena="300" data-multa="50000" data-fianca="25000" value="151º Direção imprudente"> 151º Direção imprudente</label>
@@ -227,6 +240,34 @@
         if (opcao === 'nao' && nao.checked) sim.checked = false;
     }
 
+    // FUNÇÃO DE PESQUISA
+    function filtrarCrimes() {
+        const termo = document.getElementById('txtPesquisa').value.toLowerCase();
+        const lista = document.getElementById('listaParaFiltrar');
+        const labels = lista.getElementsByTagName('label');
+        const headers = lista.getElementsByClassName('categoria-header');
+
+        // Filtra os crimes
+        for (let label of labels) {
+            const texto = label.innerText.toLowerCase();
+            label.style.display = texto.includes(termo) ? "flex" : "none";
+        }
+
+        // Esconde cabeçalhos vazios
+        for (let header of headers) {
+            let proximo = header.nextElementSibling;
+            let temVisivel = false;
+            while (proximo && !proximo.classList.contains('categoria-header')) {
+                if (proximo.tagName === 'LABEL' && proximo.style.display === 'flex') {
+                    temVisivel = true;
+                    break;
+                }
+                proximo = proximo.nextElementSibling;
+            }
+            header.style.display = temVisivel ? "block" : "none";
+        }
+    }
+
     function calcular() {
         let penaBase = 0, multa = 0, fianca = 0, inafiancavel = false;
         let crimesSelecionados = [];
@@ -275,7 +316,6 @@
     document.querySelectorAll('input').forEach(i => i.addEventListener('change', calcular));
 
     function copiar() {
-        // Validação de campos obrigatórios
         const campos = [
             { id: 'inPrisaoPor', nome: 'Prisão por' },
             { id: 'idPolicial', nome: 'ID Policial' },
