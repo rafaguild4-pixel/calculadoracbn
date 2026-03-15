@@ -13,6 +13,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <title>Calculadora Criminal - Capital Brasil Norte</title>
     <style>
         :root {
             --bg-blue: #0a265c;
@@ -43,14 +44,12 @@
             font-family: inherit; font-size: 13px; margin-top: 5px; resize: vertical; outline: none;
         }
 
-        /* BARRA DE PESQUISA */
         .container-pesquisa { margin-top: 20px; position: relative; }
         .input-pesquisa { 
             width: 100%; padding: 12px 15px; border: 2px solid #0a265c; border-radius: 8px; 
             font-family: inherit; font-size: 14px; box-sizing: border-box; outline: none;
             background: #f0f7ff; color: #0a265c; font-weight: bold;
         }
-        .input-pesquisa::placeholder { color: #6a89cc; font-weight: normal; }
 
         .secao-scroll { height: 350px; overflow-y: auto; margin-top: 10px; padding-right: 10px; border: 1px solid #eee; border-radius: 5px; }
         .categoria-header { background: #1a1a1a; color: white; padding: 6px 10px; display: block; margin: 12px 0 8px 0; font-size: 11px; font-weight: bold; text-transform: uppercase; position: sticky; top: 0; z-index: 10; }
@@ -68,11 +67,14 @@
         .tag { display: inline-block; background: #0a265c; color: white; padding: 2px 8px; border-radius: 4px; margin: 2px; font-size: 11px; }
         .tag-atenuante { background: #27ae60; }
 
-        .btn-acao { background: var(--cyan-glow); border: none; border-radius: 8px; width: 100%; height: 60px; font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .container-botoes-acao { display: flex; gap: 10px; }
+        .btn-acao { border: none; border-radius: 8px; height: 60px; font-weight: 900; font-size: 13px; cursor: pointer; text-transform: uppercase; transition: 0.3s; flex: 1; }
         .btn-discord { background: #5865F2; color: white; }
         .btn-discord:hover { background: #4752c4; }
-        .btn-notion { background: #ffffff; color: #000000; height: 45px; font-size: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; gap: 8px; border: 1px solid #ddd; }
-        .btn-notion:hover { background: #f0f0f0; }
+        .btn-enviar { background: #27ae60; color: white; }
+        .btn-enviar:hover { background: #219150; }
+        
+        .btn-notion { background: #ffffff; color: #000000; height: 45px; font-size: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; gap: 8px; border: 1px solid #ddd; width: 100%; flex: none; }
 
         .vermelho { color: #d63031; font-weight: bold; }
         .verde { color: #27ae60; font-weight: bold; font-size: 22px; }
@@ -217,8 +219,13 @@
             <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc-val="10" value="Colaboração"> Colaboração (10%)</label>
             <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc-val="30" value="Delação Premiada"> Delação Premiada (30%)</label>
         </div>
-        <button class="btn-acao btn-discord" onclick="copiar()">Copiar Para Discord</button>
-        <button class="btn-acao" style="background: #ff4757; color: white; height: 40px; font-size: 12px;" onclick="location.reload()">Limpar Tudo</button>
+        
+        <div class="container-botoes-acao">
+            <button class="btn-acao btn-discord" onclick="copiar()">Copiar Para Discord</button>
+            <button class="btn-acao btn-enviar" onclick="enviarWebhook()">Enviar Agora</button>
+        </div>
+
+        <button class="btn-acao" style="background: #ff4757; color: white; height: 40px; font-size: 12px; flex: none;" onclick="location.reload()">Limpar Tudo</button>
         
         <a href="https://crystalline-quartz-65e.notion.site/C-digo-Penal-20057c40de2f8186b854edebc8c96a2f" target="_blank" class="btn-acao btn-notion">
             📖 Ver Código Penal (Notion)
@@ -240,20 +247,17 @@
         if (opcao === 'nao' && nao.checked) sim.checked = false;
     }
 
-    // FUNÇÃO DE PESQUISA
     function filtrarCrimes() {
         const termo = document.getElementById('txtPesquisa').value.toLowerCase();
         const lista = document.getElementById('listaParaFiltrar');
         const labels = lista.getElementsByTagName('label');
         const headers = lista.getElementsByClassName('categoria-header');
 
-        // Filtra os crimes
         for (let label of labels) {
             const texto = label.innerText.toLowerCase();
             label.style.display = texto.includes(termo) ? "flex" : "none";
         }
 
-        // Esconde cabeçalhos vazios
         for (let header of headers) {
             let proximo = header.nextElementSibling;
             let temVisivel = false;
@@ -315,7 +319,7 @@
     document.querySelectorAll('input, textarea').forEach(i => i.addEventListener('input', calcular));
     document.querySelectorAll('input').forEach(i => i.addEventListener('change', calcular));
 
-    function copiar() {
+    function validarCampos() {
         const campos = [
             { id: 'inPrisaoPor', nome: 'Prisão por' },
             { id: 'idPolicial', nome: 'ID Policial' },
@@ -329,10 +333,14 @@
             if (!document.getElementById(campo.id).value.trim()) {
                 alert(`O campo "${campo.nome}" é obrigatório!`);
                 document.getElementById(campo.id).focus();
-                return;
+                return false;
             }
         }
+        return true;
+    }
 
+    function copiar() {
+        if (!validarCampos()) return;
         const data = document.getElementById('inData').value || "---";
         const hora = document.getElementById('inHora').value || "---";
         const nome = document.getElementById('inNome').value;
@@ -344,7 +352,6 @@
         const penaFinal = document.getElementById('resPenaFinal').innerText;
         const multa = document.getElementById('resMulta').innerText;
         const fianca = document.getElementById('resFianca').innerText;
-        
         const statusPago = document.getElementById('fiancaSim').checked ? "SIM" : "NÃO";
         const advogado = document.getElementById('inAdvogado').value;
         const prisaoPor = document.getElementById('inPrisaoPor').value;
@@ -367,11 +374,73 @@
 📂 **Artigos:** ${crimes.join(", ") || "Nenhum"}
 ⚖️ **Atenuantes:** ${atenuantes.join(", ") || "Nenhuma"}
 ⏱️ **Pena Base:** ${penaBase}
-📉 **Pena Final (c/ Atenuantes):** ${penaFinal}
+📉 **Pena Final:** ${penaFinal}
 💰 **Multa:** ${multa}
 🔓 **Fiança:** ${statusFianca}`;
 
-        navigator.clipboard.writeText(texto).then(() => alert("Copiado para o Discord!"));
+        navigator.clipboard.writeText(texto).then(() => alert("Copiado com sucesso!"));
+    }
+
+    async function enviarWebhook() {
+        if (!validarCampos()) return;
+
+        const webhookURL = "https://discord.com/api/webhooks/1482762981619273849/KAewO8iKAejhA2PcVUcjZba_V-dcm4sxhxXl6zvgSIAxJM2uS1YiAmljoBtQTZ6PVu-l";
+        
+        const data = document.getElementById('inData').value;
+        const hora = document.getElementById('inHora').value;
+        const nome = document.getElementById('inNome').value;
+        const pass = document.getElementById('inPass').value;
+        const idPolicial = document.getElementById('idPolicial').value;
+        const idAdvogado = document.getElementById('idAdvogado').value;
+        const relatorio = document.getElementById('inRelatorio').value || "Sem detalhes.";
+        const penaBase = document.getElementById('resPena').innerText;
+        const penaFinal = document.getElementById('resPenaFinal').innerText;
+        const multa = document.getElementById('resMulta').innerText;
+        const fianca = document.getElementById('resFianca').innerText;
+        const statusPago = document.getElementById('fiancaSim').checked ? "SIM" : "NÃO";
+        
+        let crimes = [];
+        document.querySelectorAll('.crime-check:checked').forEach(c => crimes.push(c.value));
+
+        let atenuantes = [];
+        document.querySelectorAll('.atenuante-check:checked').forEach(a => atenuantes.push(a.value));
+        const listaAtenuantes = atenuantes.join(", ") || "Nenhuma aplicada";
+        
+        const embed = {
+            title: "⚖️ NOVA FICHA CRIMINAL - CAPITAL BRASIL NORTE",
+            color: 15158332, 
+            fields: [
+                { name: "👤 Acusado", value: `${nome} (ID: ${pass})`, inline: true },
+                { name: "👮 Policial", value: `${document.getElementById('inPrisaoPor').value} (ID: ${idPolicial})`, inline: true },
+                { name: "⚖️ Advogado", value: `${document.getElementById('inAdvogado').value} (ID: ${idAdvogado})`, inline: true },
+                { name: "📅 Data e Hora", value: `${data} às ${hora}`, inline: false },
+                { name: "📂 Artigos", value: crimes.join("\n") || "Nenhum", inline: false },
+                { name: "⚖️ Atenuantes Aplicadas", value: listaAtenuantes, inline: false },
+                { name: "⏱️ Pena Base (Sem descontos)", value: penaBase, inline: true },
+                { name: "📉 PENA FINAL", value: `**${penaFinal}**`, inline: true },
+                { name: "💰 Multa", value: multa, inline: true },
+                { name: "🔓 Fiança", value: `${fianca} (Paga: ${statusPago})`, inline: true },
+                { name: "📝 Relatório", value: relatorio, inline: false }
+            ],
+            footer: { text: "Sistema de Log - Capital Brasil Norte" },
+            timestamp: new Date()
+        };
+
+        try {
+            const response = await fetch(webhookURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ embeds: [embed] })
+            });
+
+            if (response.ok) {
+                alert("✅ Relatório completo enviado para o Discord!");
+            } else {
+                alert("❌ Erro ao enviar. Verifique o link do Webhook.");
+            }
+        } catch (error) {
+            alert("❌ Erro de conexão.");
+        }
     }
 </script>
 
