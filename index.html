@@ -49,37 +49,20 @@
         .option-item:hover { background: #f9f9f9; }
         .option-item input { margin-right: 10px; width: 16px; height: 16px; cursor: pointer; }
 
-        .painel-direito { width: 40%; display: flex; flex-direction: column; padding: 30px; gap: 20px; }
+        .painel-direito { width: 40%; display: flex; flex-direction: column; padding: 30px; gap: 15px; }
         
         .box-atenuantes { background-color: white; color: black; width: 100%; padding: 20px; border-radius: 10px; box-sizing: border-box; }
         .box-atenuantes h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #ddd; padding-bottom: 5px; color: var(--bg-blue); }
 
-        .lista-selecionados { 
-            background: #f1f1f1; 
-            padding: 10px; 
-            border-radius: 5px; 
-            margin-top: 10px; 
-            font-size: 12px; 
-            color: #333;
-            min-height: 20px;
-        }
-        .tag {
-            display: inline-block;
-            background: #0a265c;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin: 2px;
-            font-size: 11px;
-        }
+        .lista-selecionados { background: #f1f1f1; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 12px; color: #333; min-height: 20px; }
+        .tag { display: inline-block; background: #0a265c; color: white; padding: 2px 8px; border-radius: 4px; margin: 2px; font-size: 11px; }
         .tag-atenuante { background: #27ae60; }
 
-        .btn-acao { 
-            background: var(--cyan-glow); border: none; border-radius: 8px; width: 100%; height: 60px; 
-            font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase; transition: 0.3s;
-        }
+        .btn-acao { background: var(--cyan-glow); border: none; border-radius: 8px; width: 100%; height: 60px; font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
         .btn-discord { background: #5865F2; color: white; }
         .btn-discord:hover { background: #4752c4; }
+        .btn-notion { background: #ffffff; color: #000000; height: 45px; font-size: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; gap: 8px; border: 1px solid #ddd; }
+        .btn-notion:hover { background: #f0f0f0; }
 
         .vermelho { color: #d63031; font-weight: bold; }
         .verde { color: #27ae60; font-weight: bold; font-size: 22px; }
@@ -99,21 +82,14 @@
         
         <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
             <div class="info-linha">👤 Acusado: <input type="text" id="inNome" class="input-campo"> 🆔 ID: <input type="text" id="inPass" class="input-campo" style="max-width: 80px;"></div>
-            
             <textarea id="inRelatorio" class="textarea-relatorio" rows="3" placeholder="Descrição do ocorrido..."></textarea>
 
             <div class="info-linha" style="margin-top:10px;">⏱️ Pena Base: <span id="resPena" class="resultado-texto">0 meses</span></div>
             <div class="info-linha">💰 Multa Total: <span id="resMulta" class="resultado-texto">R$ 0,00</span></div>
             <div class="info-linha">🔓 Fiança: <span id="resFianca" class="resultado-texto">R$ 0,00</span></div>
             
-            <div class="info-linha" style="display: block; margin-top: 15px;">
-                📂 Artigos Selecionados:
-                <div id="listaCrimes" class="lista-selecionados">Nenhum crime selecionado.</div>
-            </div>
-            <div class="info-linha" style="display: block; margin-top: 5px;">
-                ⚖️ Atenuantes Aplicadas:
-                <div id="listaAtenuantes" class="lista-selecionados">Nenhuma atenuante.</div>
-            </div>
+            <div class="info-linha" style="display: block; margin-top: 15px;">📂 Artigos Selecionados: <div id="listaCrimes" class="lista-selecionados">Nenhum crime selecionado.</div></div>
+            <div class="info-linha" style="display: block; margin-top: 5px;">⚖️ Atenuantes Aplicadas: <div id="listaAtenuantes" class="lista-selecionados">Nenhuma atenuante.</div></div>
 
             <div class="info-linha" style="color: #27ae60; margin-top: 10px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; display: block;">
                 📉 PENA FINAL (COM ATENUANTES): <br><span id="resPenaFinal" class="verde">0 meses</span>
@@ -217,7 +193,11 @@
             <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc-val="30" value="Delação Premiada"> Delação Premiada (30%)</label>
         </div>
         <button class="btn-acao btn-discord" onclick="copiar()">Copiar Para Discord</button>
-        <button class="btn-acao" style="background: #ff4757; color: white; height: 40px; font-size: 12px; margin-top: 10px;" onclick="location.reload()">Limpar Tudo</button>
+        <button class="btn-acao" style="background: #ff4757; color: white; height: 40px; font-size: 12px;" onclick="location.reload()">Limpar Tudo</button>
+        
+        <a href="https://crystalline-quartz-65e.notion.site/C-digo-Penal-20057c40de2f8186b854edebc8c96a2f" target="_blank" class="btn-acao btn-notion">
+            📖 Ver Código Penal (Notion)
+        </a>
     </div>
 </div>
 
@@ -237,7 +217,6 @@
             penaBase += parseInt(c.dataset.pena);
             multa += parseInt(c.dataset.multa);
             crimesSelecionados.push(c.value);
-
             let f = parseInt(c.dataset.fianca);
             if (f === 0) inafiancavel = true; 
             else if (f > 0) fianca += f;
@@ -257,27 +236,11 @@
         document.getElementById('resPenaFinal').innerText = penaFinal + " meses";
         
         const fSpan = document.getElementById('resFianca');
-        if (inafiancavel) {
-            fSpan.innerText = "INAFIANÇÁVEL";
-            fSpan.className = "vermelho resultado-texto";
-        } else {
-            fSpan.innerText = "R$ " + fianca.toLocaleString('pt-BR');
-            fSpan.className = "resultado-texto";
-        }
+        if (inafiancavel) { fSpan.innerText = "INAFIANÇÁVEL"; fSpan.className = "vermelho resultado-texto"; }
+        else { fSpan.innerText = "R$ " + fianca.toLocaleString('pt-BR'); fSpan.className = "resultado-texto"; }
 
-        const divCrimes = document.getElementById('listaCrimes');
-        if(crimesSelecionados.length > 0) {
-            divCrimes.innerHTML = crimesSelecionados.map(crime => `<span class="tag">${crime}</span>`).join('');
-        } else {
-            divCrimes.innerHTML = "Nenhum crime selecionado.";
-        }
-
-        const divAtenuantes = document.getElementById('listaAtenuantes');
-        if(atenuantesSelecionadas.length > 0) {
-            divAtenuantes.innerHTML = atenuantesSelecionadas.map(at => `<span class="tag tag-atenuante">${at}</span>`).join('');
-        } else {
-            divAtenuantes.innerHTML = "Nenhuma atenuante.";
-        }
+        document.getElementById('listaCrimes').innerHTML = crimesSelecionados.length > 0 ? crimesSelecionados.map(crime => `<span class="tag">${crime}</span>`).join('') : "Nenhum crime selecionado.";
+        document.getElementById('listaAtenuantes').innerHTML = atenuantesSelecionadas.length > 0 ? atenuantesSelecionadas.map(at => `<span class="tag tag-atenuante">${at}</span>`).join('') : "Nenhuma atenuante.";
     }
 
     document.querySelectorAll('input, textarea').forEach(i => i.addEventListener('input', calcular));
@@ -291,7 +254,7 @@
         const idPolicial = document.getElementById('idPolicial').value || "---";
         const idAdvogado = document.getElementById('idAdvogado').value || "N/A";
         const relatorio = document.getElementById('inRelatorio').value || "---";
-        const penaBase = document.getElementById('resPena').innerText; // PEGANDO A PENA TOTAL
+        const penaBase = document.getElementById('resPena').innerText;
         const penaFinal = document.getElementById('resPenaFinal').innerText;
         const multa = document.getElementById('resMulta').innerText;
         const fianca = document.getElementById('resFianca').innerText;
@@ -300,7 +263,6 @@
 
         let crimes = [];
         document.querySelectorAll('.crime-check:checked').forEach(c => crimes.push(c.value));
-
         let atenuantes = [];
         document.querySelectorAll('.atenuante-check:checked').forEach(a => atenuantes.push(a.value));
 
