@@ -288,18 +288,13 @@
 </div>
 
 <script>
-    // --- CONFIGURAÇÃO ---
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1482766792169361661/4QYEpcaqFEinXdwehIgmy0A9vqGSrg0-mTo6IuK8_SUNNhR3aTMz--YoUDaMU20bgx-a"; 
 
-    // 1. LÓGICA DE AUTENTICAÇÃO DISCORD
     function checkLogin() {
         const fragment = new URLSearchParams(window.location.hash.slice(1));
         const token = fragment.get('access_token');
-
         if (token) {
-            fetch('https://discord.com/api/users/@me', {
-                headers: { authorization: `Bearer ${token}` }
-            })
+            fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${token}` } })
             .then(res => res.json())
             .then(user => {
                 document.getElementById('login-screen').style.display = 'none';
@@ -309,23 +304,18 @@
                 document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
                 window.discordUser = user; 
                 atualizarDataHora();
-                // Adiciona ouvintes para atualizar cálculos em tempo real
-                document.querySelectorAll('input, textarea, select').forEach(el => {
+                document.querySelectorAll('input, textarea').forEach(el => {
                     el.addEventListener('change', calcular);
                     el.addEventListener('keyup', calcular);
                 });
                 document.querySelectorAll('.crime-check, .atenuante-check').forEach(el => {
                     el.addEventListener('change', calcular);
                 });
-            })
-            .catch(() => logout());
+            }).catch(() => logout());
         }
     }
 
-    function logout() {
-        window.location.hash = "";
-        window.location.reload();
-    }
+    function logout() { window.location.hash = ""; window.location.reload(); }
 
     function atualizarDataHora() {
         const agora = new Date();
@@ -346,20 +336,15 @@
         const lista = document.getElementById('listaParaFiltrar');
         const labels = lista.getElementsByTagName('label');
         const headers = lista.getElementsByClassName('categoria-header');
-
         for (let label of labels) {
             const texto = label.innerText.toLowerCase();
             label.style.display = texto.includes(termo) ? "flex" : "none";
         }
-
         for (let header of headers) {
             let proximo = header.nextElementSibling;
             let temVisivel = false;
             while (proximo && !proximo.classList.contains('categoria-header')) {
-                if (proximo.tagName === 'LABEL' && proximo.style.display === 'flex') {
-                    temVisivel = true;
-                    break;
-                }
+                if (proximo.tagName === 'LABEL' && proximo.style.display === 'flex') { temVisivel = true; break; }
                 proximo = proximo.nextElementSibling;
             }
             header.style.display = temVisivel ? "block" : "none";
@@ -397,71 +382,84 @@
         const boxFianca = document.getElementById('boxFiancaPaga');
 
         if (inafiancavel) { 
-            fSpan.innerText = "INAFIANÇÁVEL"; 
-            fSpan.className = "vermelho resultado-texto"; 
-            boxFianca.style.display = "none";
+            fSpan.innerText = "INAFIANÇÁVEL"; fSpan.className = "vermelho resultado-texto"; boxFianca.style.display = "none";
         } else { 
-            fSpan.innerText = "R$ " + fianca.toLocaleString('pt-BR'); 
-            fSpan.className = "resultado-texto";
-            boxFianca.style.display = "flex";
+            fSpan.innerText = "R$ " + fianca.toLocaleString('pt-BR'); fSpan.className = "resultado-texto"; boxFianca.style.display = "flex";
         }
 
-        document.getElementById('listaCrimes').innerHTML = crimesSelecionados.length > 0 ? crimesSelecionados.map(crime => `<span class="tag">${crime}</span>`).join('') : "Nenhum crime selecionado.";
-        document.getElementById('listaAtenuantes').innerHTML = atenuantesSelecionadas.length > 0 ? atenuantesSelecionadas.map(at => `<span class="tag tag-atenuante">${at}</span>`).join('') : "Nenhuma atenuante.";
-        
-        return { penaBase, multa, fianca, penaFinal, crimesSelecionados, atenuantesSelecionadas, inafiancavel };
+        document.getElementById('listaCrimes').innerHTML = crimesSelecionados.length > 0 ? crimesSelecionados.map(c => `<span class="tag">${c}</span>`).join('') : "Nenhum crime selecionado.";
+        document.getElementById('listaAtenuantes').innerHTML = atenuantesSelecionadas.length > 0 ? atenuantesSelecionadas.map(a => `<span class="tag tag-atenuante">${a}</span>`).join('') : "Nenhuma atenuante.";
     }
 
-    // --- FUNÇÃO DE ENVIO E CÓPIA UNIFICADA (A QUE VOCÊ PEDIU) ---
     function processarRelatorio(tipo) {
-        const dados = calcular();
         const data = document.getElementById('inData').value;
         const hora = document.getElementById('inHora').value;
-        const policialNome = document.getElementById('inPrisaoPor').value;
-        const policialID = document.getElementById('idPolicial').value;
-        const acusadoNome = document.getElementById('inNome').value;
-        const acusadoID = document.getElementById('inPass').value;
-        const advogado = document.getElementById('inAdvogado').value || "Nenhum";
-        const advogadoID = document.getElementById('idAdvogado').value || "N/A";
+        const oficial = document.getElementById('inPrisaoPor').value;
+        const idOficial = document.getElementById('idPolicial').value;
+        const advogado = document.getElementById('inAdvogado').value;
+        const idAdvogado = document.getElementById('idAdvogado').value;
+        const acusado = document.getElementById('inNome').value;
+        const idAcusado = document.getElementById('inPass').value;
         const relatorio = document.getElementById('inRelatorio').value;
-        const fiancaPaga = document.getElementById('fiancaSim').checked ? "SIM ✅" : "NÃO ❌";
-        
-        // MARCAÇÃO DO USUÁRIO LOGADO
-        const mencaoPolicial = window.discordUser ? `<@${window.discordUser.id}>` : policialNome;
+        const penaBase = document.getElementById('resPena').innerText;
+        const penaFinal = document.getElementById('resPenaFinal').innerText;
+        const multa = document.getElementById('resMulta').innerText;
+        const fiancaVal = document.getElementById('resFianca').innerText;
+        const fiancaPaga = document.getElementById('fiancaSim').checked ? "✅ SIM" : "❌ NÃO";
 
-        const layoutTexto = 
-`**⚖️ NOVA FICHA CRIMINAL - CAPITAL BRASIL NORTE**
+        const crimes = Array.from(document.querySelectorAll('.crime-check:checked')).map(c => c.value).join(', ');
+        const atenuantes = Array.from(document.querySelectorAll('.atenuante-check:checked')).map(a => a.value).join(', ');
 
-**👤 Acusado:** ${acusadoNome} (ID: ${acusadoID})
-**👮 Policial:** ${mencaoPolicial} | (ID: ${policialID})
-**⚖️ Advogado:** ${advogado} (ID: ${advogadoID})
-
-**📅 Data e Hora:** ${data} às ${hora}
-**📁 Artigos:** ${dados.crimesSelecionados.join(', ')}
-**⚖️ Atenuantes:** ${dados.atenuantesSelecionadas.join(', ') || "Nenhuma"}
-
-**⏱️ Pena Base:** ${dados.penaBase} meses
-**📉 PENA FINAL:** **${dados.penaFinal} meses**
-**💰 Multa:** R$ ${dados.multa.toLocaleString('pt-BR')}
-**🔓 Fiança:** ${dados.inafiancavel ? "INAFIANÇÁVEL" : "R$ " + dados.fianca.toLocaleString('pt-BR')} | **Paga:** ${fiancaPaga}
-
-**📝 Relatório:** ${relatorio || "Sem descrição detalhada."}
-
-*Relatório enviado por: ${mencaoPolicial}*`;
-
-        if (tipo === 'copiar') {
-            navigator.clipboard.writeText(layoutTexto);
-            alert("Copiado com sucesso para o Discord!");
+        if (!oficial || !idOficial || !acusado || !idAcusado) {
+            alert("Preencha os campos obrigatórios (*)");
+            return;
         }
 
         if (tipo === 'enviar') {
+            const embedData = {
+                embeds: [{
+                    title: "📑 NOVA FICHA CRIMINAL - CAPITAL BRASIL NORTE",
+                    color: 3447003, // Cor azul Discord
+                    fields: [
+                        { name: "👤 Acusado", value: `${acusado} (ID: ${idAcusado})`, inline: true },
+                        { name: "👮 Oficial", value: `${oficial} (ID: ${idOficial})`, inline: true },
+                        { name: "⚖️ Advogado", value: `${advogado || "N/A"} (ID: ${idAdvogado || "N/A"})`, inline: true },
+                        { name: "⏱️ Pena Final", value: `**${penaFinal}** (Base: ${penaBase})`, inline: true },
+                        { name: "💰 Multa", value: multa, inline: true },
+                        { name: "🔓 Fiança", value: `${fiancaVal} | Paga: ${fiancaPaga}`, inline: true },
+                        { name: "📂 Artigos", value: crimes || "Nenhum", inline: false },
+                        { name: "📜 Atenuantes", value: atenuantes || "Nenhuma", inline: false },
+                        { name: "📝 Relatório", value: relatorio || "Sem descrição.", inline: false }
+                    ],
+                    footer: { text: `Data: ${data} | Hora: ${hora}` },
+                    timestamp: new Date().toISOString()
+                }]
+            };
+
             fetch(WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    content: layoutTexto // Envia o texto formatado exatamente igual ao copiar
-                })
-            }).then(() => alert("Enviado para os logs com sucesso!"));
+                body: JSON.stringify(embedData)
+            }).then(() => alert("Relatório enviado com destaque azul!")).catch(() => alert("Erro ao enviar."));
+
+        } else if (tipo === 'copiar') {
+            // Formatação especial para copiar (Markdown Codeblock)
+            const textoCopiado = "```ini\n" +
+                "[ FICHA CRIMINAL - CAPITAL BRASIL NORTE ]\n\n" +
+                "ACUSADO: " + acusado + " (ID: " + idAcusado + ")\n" +
+                "OFICIAL: " + oficial + " (ID: " + idOficial + ")\n" +
+                "ADVOGADO: " + advogado + " (ID: " + idAdvogado + ")\n" +
+                "----------------------------------------\n" +
+                "PENA FINAL: " + penaFinal + "\n" +
+                "MULTA: " + multa + "\n" +
+                "FIANÇA: " + fiancaVal + " | PAGA: " + (fiancaPaga === "✅ SIM" ? "SIM" : "NAO") + "\n" +
+                "ARTIGOS: " + crimes + "\n" +
+                "----------------------------------------\n" +
+                "RELATORIO: " + relatorio + "\n\n" +
+                "DATA: " + data + " | HORA: " + hora + "\n" +
+                "```";
+
+            navigator.clipboard.writeText(textoCopiado).then(() => alert("Copiado no formato de destaque do Discord!"));
         }
     }
 </script>
