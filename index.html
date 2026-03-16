@@ -423,9 +423,11 @@
 
         const msg = `
 **⚖️ FICHA CRIMINAL - CAPITAL BRASIL NORTE**
-👤 **Acusado:** ${nomeAcusado} (ID: ${idAcusado})
 👮 **Oficial:** ${document.getElementById('inPrisaoPor').value} (ID: ${document.getElementById('idPolicial').value})
 🏢 **Unidade:** ${unidade}
+
+👤 **Acusado:** ${nomeAcusado} (ID: ${idAcusado})
+⚖️ **Advogado:** ${document.getElementById('inAdvogado').value || "Nenhum"}
 
 ⏱️ **Pena Final:** ${document.getElementById('resPenaFinal').innerText}
 💰 **Multa:** ${document.getElementById('resMulta').innerText}
