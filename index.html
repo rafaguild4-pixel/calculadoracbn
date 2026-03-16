@@ -325,8 +325,6 @@
                 window.discordUser = user; 
                 atualizarDataHora();
                 
-                document.getElementById('inPrisaoPor').value = user.username;
-                document.getElementById('idPolicial').value = user.id;
 
                 document.querySelectorAll('input, textarea, select').forEach(el => {
                     el.addEventListener('change', calcular);
