@@ -429,6 +429,7 @@
         let crimes = Array.from(document.querySelectorAll('.crime-check:checked')).map(c => c.value).join(', ');
         let atenuantes = Array.from(document.querySelectorAll('.atenuante-check:checked')).map(a => a.value).join(', ');
 
+        // ESTE É O FORMATO ORIGINAL QUE VOCÊ USA
         const textoRelatorio = `**⚖️ FICHA CRIMINAL - CAPITAL BRASIL NORTE**
 👮 **Oficial:** ${document.getElementById('inPrisaoPor').value} (ID: ${document.getElementById('idPolicial').value})
 🏢 **Unidade:** ${unidade}
@@ -449,22 +450,12 @@ __________________________________________________`;
         if (acao === 'copiar') {
             navigator.clipboard.writeText(textoRelatorio).then(() => alert("✅ Relatório copiado para o Discord!"));
         } else {
-            const embed = {
-                title: "⚖️ NOVA FICHA CRIMINAL - CBN",
-                color: 0x0a265c,
-                fields: [
-                    { name: "👮 Oficial", value: `${document.getElementById('inPrisaoPor').value} (ID: ${document.getElementById('idPolicial').value})`, inline: true },
-                    { name: "🏢 Unidade", value: unidade, inline: true },
-                    { name: "👤 Acusado", value: `${nomeAcusado} (ID: ${idAcusado})`, inline: false },
-                    { name: "⚖️ Advogado", value: `${nomeAdvogado} (ID: ${idAdvogado})`, inline: false },
-                    { name: "⏱️ Pena Final", value: document.getElementById('resPenaFinal').innerText, inline: true },
-                    { name: "💰 Multa", value: document.getElementById('resMulta').innerText, inline: true },
-                    { name: "🔓 Fiança Paga?", value: fiancaPaga, inline: true },
-                    { name: "📂 Artigos", value: crimes || "Nenhum" },
-                    { name: "📝 Relato", value: document.getElementById('inRelatorio').value || "Sem detalhes." }
-                ]
-            };
-            fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ embeds: [embed] }) })
+            // ENVIANDO O MESMO TEXTO EXATO PARA O DISCORD
+            fetch(WEBHOOK_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ content: textoRelatorio }) 
+            })
             .then(() => alert("🚀 Ficha enviada com sucesso!"));
         }
     }
