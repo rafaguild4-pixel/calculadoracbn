@@ -271,7 +271,7 @@
                 <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="35000" data-fianca="0" value="236º Tentativa de homicídio"> 236º Tentativa de homicídio</label>
                 <label class="option-item"><input type="checkbox" class="crime-check" data-pena="900" data-multa="60000" data-fianca="0" value="237º Homicídio doloso"> 237º Homicídio doloso</label>
                 <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="30000" data-fianca="60000" value="238º Homicídio culposo"> 238º Homicídio culposo</label>
-                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="1200" data-multa="80000" data-fianca="0" value="239º Chacina"> 239º Chacina</label>
+                <label class="option-item"><input type="checkbox" class="crime-check" data-pena="1200" data-mult0="80000" data-fianca="0" value="239º Chacina"> 239º Chacina</label>
 
                 <span class="categoria-header">7. OUTROS CRIMES</span>
                 <label class="option-item"><input type="checkbox" class="crime-check" data-pena="600" data-multa="50000" data-fianca="50000" value="250º Maus-tratos"> 250º Maus-tratos</label>
@@ -286,6 +286,7 @@
         <div class="painel-direito">
             <div class="box-atenuantes">
                 <h3>⚖️ Atenuantes</h3>
+                <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc-val="50" value="Auxilio Detento" checked disabled> <strong>Auxilio Detento (50%)</strong></label>
                 <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc-val="30" value="Advogado Constituído"> Advogado Constituído (30%)</label>
                 <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc-val="10" value="Réu Primário"> Réu Primário (10%)</label>
                 <label class="option-item"><input type="checkbox" class="atenuante-check" data-desc-val="10" value="Réu Confesso"> Réu Confesso (10%)</label>
@@ -323,10 +324,11 @@
                 document.getElementById('user-name').innerText = user.username;
                 document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
                 
-                // Preenche os campos automaticamente
-                
                 window.discordUser = user; 
                 atualizarDataHora();
+                
+                // Inicializa o cálculo já com a atenuante padrão
+                calcular();
 
                 document.querySelectorAll('input, textarea, select').forEach(el => {
                     el.addEventListener('change', calcular);
@@ -380,12 +382,13 @@
         });
 
         let totalDesconto = 0;
+        // Pega inclusive as marcadas e disabled
         document.querySelectorAll('.atenuante-check:checked').forEach(a => {
             totalDesconto += parseInt(a.dataset.descVal);
             atenuantesSelecionadas.push(a.value);
         });
 
-        if (totalDesconto > 90) totalDesconto = 90; 
+        if (totalDesconto > 95) totalDesconto = 95; 
         let penaFinal = Math.ceil(penaBase * (1 - totalDesconto / 100));
 
         document.getElementById('resPena').innerText = penaBase + " meses";
@@ -394,71 +397,86 @@
         document.getElementById('resFianca').innerText = fiancaTxt;
         document.getElementById('resPenaFinal').innerText = penaFinal + " meses";
 
-        document.getElementById('listaCrimes').innerHTML = crimesSelecionados.map(c => `<span class="tag">${c}</span>`).join('') || "Nenhum crime selecionado.";
-        document.getElementById('listaAtenuantes').innerHTML = atenuantesSelecionadas.map(a => `<span class="tag tag-atenuante">${a}</span>`).join('') || "Nenhuma atenuante.";
+        document.getElementById('listaCrimes').innerHTML = crimesSelecionados.length > 0 ? 
+            crimesSelecionados.map(c => `<span class="tag">${c}</span>`).join('') : "Nenhum crime selecionado.";
+        
+        document.getElementById('listaAtenuantes').innerHTML = atenuantesSelecionadas.length > 0 ?
+            atenuantesSelecionadas.map(a => `<span class="tag tag-atenuante">${a}</span>`).join('') : "Nenhuma atenuante.";
     }
 
     function validarEProcessar(acao) {
-        const campos = ['inPrisaoPor', 'idPolicial', 'inNome', 'inPass', 'inAdvogado', 'idAdvogado'];
-        for (let id of campos) {
-            if (!document.getElementById(id).value) {
-                alert("Preencha todos os campos obrigatórios!");
-                return;
-            }
+        const nome = document.getElementById('inNome').value;
+        const pass = document.getElementById('inPass').value;
+        const oficial = document.getElementById('user-name').innerText;
+        const crimes = document.querySelectorAll('.crime-check:checked').length;
+
+        if (!nome || !pass || crimes === 0) {
+            alert("Preencha o nome, ID do acusado e selecione pelo menos um crime!");
+            return;
         }
 
-        const dados = {
-            oficial: document.getElementById('inPrisaoPor').value,
-            idPolicial: document.getElementById('idPolicial').value,
-            unidade: document.getElementById('inUnidade').value,
-            data: document.getElementById('inData').value,
-            hora: document.getElementById('inHora').value,
-            acusado: document.getElementById('inNome').value,
-            passacusado: document.getElementById('inPass').value,
-            advogado: document.getElementById('inAdvogado').value,
-            idAdvogado: document.getElementById('idAdvogado').value,
-            pena: document.getElementById('resPenaFinal').innerText,
-            multa: document.getElementById('resMulta').innerText,
-            fianca: document.getElementById('resFianca').innerText,
-            fiancaPaga: document.getElementById('fiancaSim').checked ? "SIM" : "NÃO",
-            relatorio: document.getElementById('inRelatorio').value || "Nenhum relatório informado.",
-            artigos: Array.from(document.querySelectorAll('.crime-check:checked')).map(c => c.value).join(', '),
-            atenuantes: Array.from(document.querySelectorAll('.atenuante-check:checked')).map(a => a.value).join(', ')
-        };
+        const data = document.getElementById('inData').value;
+        const hora = document.getElementById('inHora').value;
+        const prisaoPor = document.getElementById('inPrisaoPor').value;
+        const idPolicial = document.getElementById('idPolicial').value;
+        const unidade = document.getElementById('inUnidade').value;
+        const advogado = document.getElementById('inAdvogado').value;
+        const idAdvogado = document.getElementById('idAdvogado').value;
+        const relatorio = document.getElementById('inRelatorio').value;
+        
+        const crimesLista = Array.from(document.querySelectorAll('.crime-check:checked')).map(c => c.value).join(', ');
+        const atenuantesLista = Array.from(document.querySelectorAll('.atenuante-check:checked')).map(a => a.value).join(', ');
+        const penaFinal = document.getElementById('resPenaFinal').innerText;
+        const multaFinal = document.getElementById('resMulta').innerText;
+        const fiancaFinal = document.getElementById('resFianca').innerText;
+        const fiancaStatus = document.getElementById('fiancaSim').checked ? "PAGA" : "NÃO PAGA";
 
-        const textoFinal = `
-📌 **FICHA CRIMINAL - CBN**
-━━━━━━━━━━━━━━━━━━━━
-👮 **OFICIAL:** ${dados.oficial} (ID: ${dados.idPolicial})
-🏢 **UNIDADE:** ${dados.unidade}
-📅 **DATA:** ${dados.data} às ${dados.hora}
+        const textoCopiar = `
+**RELATÓRIO DE PRISÃO - CAPITAL BRASIL NORTE**
+📅 **DATA:** ${data} | 🕒 **HORA:** ${hora}
+👮 **OFICIAL:** ${oficial} | 🆔 **ID:** ${idPolicial}
+🏢 **UNIDADE:** ${unidade}
+⚖️ **ADVOGADO:** ${advogado} | 🆔 **ID:** ${idAdvogado}
 
-👤 **ACUSADO:** ${dados.acusado} (ID: ${dados.passacusado})
-⚖️ **ADVOGADO:** ${dados.advogado} (ID: ${dados.idAdvogado})
+👤 **ACUSADO:** ${nome} | 🆔 **ID:** ${pass}
+📂 **ARTIGOS:** ${crimesLista}
+⚖️ **ATENUANTES:** ${atenuantesLista}
 
-📂 **ARTIGOS:** ${dados.artigos || "Nenhum"}
-📉 **ATENUANTES:** ${dados.atenuantes || "Nenhuma"}
+⏱️ **PENA FINAL:** ${penaFinal}
+💰 **MULTA TOTAL:** ${multaFinal}
+🔓 **FIANÇA:** ${fiancaFinal} (${fiancaStatus})
 
-⏱️ **PENA FINAL:** ${dados.pena}
-💰 **MULTA:** ${dados.multa}
-🔓 **FIANÇA:** ${dados.fianca} (Paga: ${dados.fiancaPaga})
-
-📝 **RELATÓRIO:**
-${dados.relatorio}
-━━━━━━━━━━━━━━━━━━━━
-`;
+📝 **RELATÓRIO:** ${relatorio || "N/A"}
+--------------------------------------------------`;
 
         if (acao === 'copiar') {
-            navigator.clipboard.writeText(textoFinal).then(() => alert("Copiado!"));
+            navigator.clipboard.writeText(textoCopiar).then(() => alert("Copiado para o Discord!"));
         } else {
-            // Enviar com a marcação do Discord
+            const payload = {
+                content: "📌 **Novo Registro de Prisão Criminal**",
+                embeds: [{
+                    title: "FICHA CRIMINAL - CBN",
+                    color: 3447003,
+                    fields: [
+                        { name: "👤 Acusado", value: `${nome} (ID: ${pass})`, inline: true },
+                        { name: "👮 Oficial", value: `${oficial}`, inline: true },
+                        { name: "⏱️ Pena", value: penaFinal, inline: true },
+                        { name: "💰 Multa", value: multaFinal, inline: true },
+                        { name: "🔓 Fiança", value: `${fiancaFinal} (${fiancaStatus})`, inline: true },
+                        { name: "📂 Crimes", value: crimesLista },
+                        { name: "⚖️ Atenuantes", value: atenuantesLista },
+                        { name: "📝 Relatório", value: relatorio || "Sem descrição." }
+                    ],
+                    footer: { text: `Data: ${data} às ${hora}` },
+                    thumbnail: { url: document.getElementById('user-avatar').src }
+                }]
+            };
+
             fetch(WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    content: `🔔 **Nova ficha enviada por:** <@${dados.idPolicial}>\n${textoFinal}` 
-                })
-            }).then(() => alert("Enviado com sucesso!"));
+                body: JSON.stringify(payload)
+            }).then(() => alert("Enviado com sucesso!")).catch(() => alert("Erro ao enviar webhook."));
         }
     }
 </script>
