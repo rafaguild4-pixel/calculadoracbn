@@ -386,7 +386,7 @@
             atenuantesSelecionadas.push(a.value);
         });
 
-        if (totalDesconto > 90) totalDesconto = 90; 
+        if (totalDesconto > 80) totalDesconto = 80; 
         let penaFinal = Math.ceil(penaBase * (1 - totalDesconto / 100));
 
         document.getElementById('resPena').innerText = penaBase + " meses";
