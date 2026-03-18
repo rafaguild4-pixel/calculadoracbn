@@ -450,17 +450,23 @@ ${dados.relatorio}
 
         if (acao === 'copiar') {
             navigator.clipboard.writeText(textoFinal).then(() => alert("Copiado!"));
-        } else {
-            // Enviar com a marcação do Discord
-            fetch(WEBHOOK_URL, {
+} else {
+            // Pegamos o ID numérico puro do usuário logado
+            const idDiscordPuro = window.me.id;
+
+            fetch(WEBHOOK, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    content: `🔔 **Nova ficha enviada por:** <@${dados.idPolicial}>\n${textoFinal}` 
+                    // Aqui ele escreve o ID e depois faz a menção para marcar a pessoa
+                    content: `🔔 **Nova ficha enviada por:** ID: ${idDiscordPuro} (<@${idDiscordPuro}>)`,
+                    embeds: [{
+                        description: layoutWebhook,
+                        color: 4321430 
+                    }]
                 })
-            }).then(() => alert("Enviado com sucesso!"));
-        }
-    }
+            }).then(() => alert("Ficha enviada com sucesso!"));
+        } 
 </script>
 
 </body>
