@@ -457,7 +457,7 @@ ${dados.relatorio}
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    content: `🔔 **Nova ficha enviada por:** <@${dados.idPolicial}>\n${textoFinal}` 
+                    content: `🔔 **Nova ficha enviada por:** <@${window.discordUser.id}>\n${textoFinal}` 
                 })
             }).then(() => alert("Enviado com sucesso!"));
         }
